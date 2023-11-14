@@ -6,6 +6,7 @@
 
 typedef uint64_t U64;
 
+// Enumeration for squares
 enum enumSquareBB
 {
     A1, B1, C1, D1, E1, F1, G1, H1,
@@ -18,6 +19,7 @@ enum enumSquareBB
     A8, B8, C8, D8, E8, F8, G8, H8,
 };
 
+// Enumeration for piece sets
 enum enumPieceBB
 {
     nWhite,
@@ -36,6 +38,7 @@ enum enumPieceBB
     nBlackKing,
 };
 
+// Constants for files and ranks described by hexadecimal. (Values assigned in bitboards.cpp)
 extern const U64 FILE_A;
 extern const U64 FILE_B;
 extern const U64 FILE_C;
@@ -56,26 +59,32 @@ extern const U64 RANK_6;
 extern const U64 RANK_7;
 extern const U64 RANK_8;
 
-inline U64 south(U64 bb){return bb >> 8;}
-inline U64 north(U64 bb){return bb << 8;}
-inline U64 east(U64 bb){return (bb & ~FILE_H) >> 1;}
-inline U64 west(U64 bb){return (bb & ~FILE_A) << 1;}
-inline U64 northEast(U64 bb){return (bb & ~FILE_H) << 7;}
-inline U64 northWest(U64 bb){return (bb & ~FILE_A) << 9;}
-inline U64 southEast(U64 bb){return (bb & ~FILE_H) >> 9;}
-inline U64 southWest(U64 bb){return (bb & ~FILE_A) >> 7;}
+// Movement function using bit-shifts maybe useful later:
+//inline U64 south(U64 bb){return bb >> 8;}
+//inline U64 north(U64 bb){return bb << 8;}
+//inline U64 east(U64 bb){return (bb & ~FILE_H) >> 1;}
+//inline U64 west(U64 bb){return (bb & ~FILE_A) << 1;}
+//inline U64 northEast(U64 bb){return (bb & ~FILE_H) << 7;}
+//inline U64 northWest(U64 bb){return (bb & ~FILE_A) << 9;}
+//inline U64 southEast(U64 bb){return (bb & ~FILE_H) >> 9;}
+//inline U64 southWest(U64 bb){return (bb & ~FILE_A) >> 7;}
 
 class BitBoard{
 public:
     BitBoard();
+
+    // getters and setters
     U64 getPieceSet(enumPieceBB) const;
-    void placePiece(enumPieceBB, enumSquareBB);
-    void loadAttackTables();
+
+    // Static bit manipulation functions
     static void set_bit(U64&, int);
     static U64 get_bit(U64&, int) ;
     static void clear_bit(U64&, int i);
     static int get_LSB(U64) ;
+
+    // debug functions
     static void printBB(const U64& bb) ;
+    void placePiece(enumPieceBB, enumSquareBB);
 
     U64 knightAttacks[64];
     U64 kingAttacks[64];
@@ -87,6 +96,8 @@ private:
     const U64 emptyBB = 0ULL;
     const U64 occupiedBB = 0xffffffffffffffffULL;
 
+    //for calculating all attack-tables when class is created.
+    void loadAttackTables();
 
 
 };

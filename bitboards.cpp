@@ -25,6 +25,8 @@ const U64 RANK_8 = 0xff00000000000000ULL;
 
 // Bitboards constructor
 BitBoard::BitBoard(){
+    // Calculate all attack-tables
+    loadAttackTables();
     pieceBB[nWhite] =           0b0000000000000000000000000000000000000000000000001111111111111111;
     pieceBB[nBlack] =           0b1111111111111111000000000000000000000000000000000000000000000000;
 
@@ -86,10 +88,10 @@ void BitBoard::printBB(const U64& bb) {
 }
 
 void BitBoard::loadAttackTables() {
-    // Leaping pieces (king, nights, pawn) are implemented as simple look-up tables
-    // sliding pieces will require another solution as they can be blocked.
+    // Leaping pieces (king, nights, pawns) are implemented using simple look-up tables.
+    // Sliding pieces will require another solution as tshey can be blocked.
 
-    // Knights
+    // Generating lookup table for knights
     U64 knight = 0ULL;
     for (int i = 0; i <= 63; i++) {
         set_bit(knight, i);
@@ -115,6 +117,11 @@ void BitBoard::loadAttackTables() {
         this->pawnAttacks[i] = ((pawn << 7 ) & ~FILE_A) | ((pawn << 9) & ~FILE_H);
         clear_bit(pawn,i);
     }
+
+    // Sliding pieces implemented with 2D lookup table,
+    // every square can be looked up for all possible blocker patterns.
+
+    // hmm....
 }
 
 

@@ -6,7 +6,6 @@
 int main()
 {
     BitBoard bitBoards;
-    bitBoards.loadAttackTables();
 
     std::cout << "printing attacks for knight on E4:" << std::endl;
     BitBoard::printBB(bitBoards.knightAttacks[E4]);
