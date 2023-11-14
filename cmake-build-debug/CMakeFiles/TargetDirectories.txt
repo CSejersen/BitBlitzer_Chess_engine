@@ -1,0 +1,3 @@
+/Users/sejersen/dev/BBchess-engine/cmake-build-debug/CMakeFiles/BBchess_engine.dir
+/Users/sejersen/dev/BBchess-engine/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/sejersen/dev/BBchess-engine/cmake-build-debug/CMakeFiles/rebuild_cache.dir
