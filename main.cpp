@@ -2,34 +2,40 @@
 #include "bitboards.h"
 #include <iostream>
 #include <string>
+#include <SDL.h>
 
-int main()
+
+int main(int argc, char* argv[])
 {
+    SDL_INIT_EVERYTHING;
     BitBoard bitBoards;
 
-    std::cout << "printing attacks for knight on E4:" << std::endl;
-    BitBoard::printBB(bitBoards.knightAttacks[B3]);
+    bool whiteToPlay = true;
+    bitBoards.placePiece(nWhiteRook,F4);
+    bitBoards.placePiece(nWhiteBishop,A3);
+    bitBoards.placePiece(nWhiteKing,D6);
+    bitBoards.placePiece(nBlackKnight,F6);
+    bitBoards.placePiece(nBlackBishop,A4);
 
-    std::cout << "printing attacks for king on f3:" << std::endl;
-    BitBoard::printBB(bitBoards.kingAttacks[F3]);
-
-    std::cout << "printing attacks for pawn on E2:" << std::endl;
-    BitBoard::printBB(bitBoards.pawnAttacks[E2]);
-
-    std::cout << "printing bishop attack mask for E4:" << std::endl;
-    BitBoard::printBB(bitBoards.bishopAttackMask[E4]);
-
-    bitBoards.placePiece(nWhiteBishop,E4);
-    bitBoards.placePiece(nWhiteBishop,B3);
-    bitBoards.placePiece(nWhiteBishop,D6);
-
-    for(int square = A1; square <= H8; square++){
-        U64 moves = bitBoards.getRookAttacks(square,bitBoards.getPieceSet(nWhiteBishop));
-        BitBoard::printBB(moves);
+    if(whiteToPlay){
+        std::cout << "white pieces: " << std::endl;
+        BitBoard::printBB(bitBoards.getPieceSet(nWhite));
     }
+    else{
+        std::cout << "black pieces: " << std::endl;
+        BitBoard::printBB(bitBoards.getPieceSet(nBlack));
+    }
+    U64 position = (bitBoards.getPieceSet(nWhite) | bitBoards.getPieceSet(nBlack));
+    U64 attacks = bitBoards.getAttacks(whiteToPlay,position);
 
-
-
+    if(whiteToPlay){
+        std::cout << "white attacks: " << std::endl;
+        BitBoard::printBB(attacks);
+    }
+    else{
+        std::cout << "black attacks: " << std::endl;
+        BitBoard::printBB(attacks);
+    }
 
 
 

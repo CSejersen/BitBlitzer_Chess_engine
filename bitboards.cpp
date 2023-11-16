@@ -59,16 +59,16 @@ BitBoard::BitBoard(){
     pieceBB[nBlack] =           0b1111111111111111000000000000000000000000000000000000000000000000;
 
     pieceBB[nWhitePawn] =       0b0000000000000000000000000000000000000000000000001111111100000000;
-    pieceBB[nWhiteRook] =       0b0000000000000000000000000000000000000000000000000000000010000001;
     pieceBB[nWhiteKnight] =     0b0000000000000000000000000000000000000000000000000000000001000010;
     pieceBB[nWhiteBishop] =     0b0000000000000000000000000000000000000000000000000000000000100100;
+    pieceBB[nWhiteRook] =       0b0000000000000000000000000000000000000000000000000000000010000001;
     pieceBB[nWhiteQueen] =      0b0000000000000000000000000000000000000000000000000000000000001000;
     pieceBB[nWhiteKing] =       0b0000000000000000000000000000000000000000000000000000000000010000;
 
     pieceBB[nBlackPawn] =       0b0000000011111111000000000000000000000000000000000000000000000000;
-    pieceBB[nBlackRook] =       0b1000000100000000000000000000000000000000000000000000000000000000;
     pieceBB[nBlackKnight] =     0b0100001000000000000000000000000000000000000000000000000000000000;
     pieceBB[nBlackBishop] =     0b0010010000000000000000000000000000000000000000000000000000000000;
+    pieceBB[nBlackRook] =       0b1000000100000000000000000000000000000000000000000000000000000000;
     pieceBB[nBlackQueen] =      0b0000100000000000000000000000000000000000000000000000000000000000;
     pieceBB[nBlackKing] =       0b0001000000000000000000000000000000000000000000000000000000000000;
 }
@@ -79,9 +79,16 @@ U64 BitBoard::getPieceSet(enumPieceBB pieceType) const {
 }
 
 // places piece on a given square of associated Bitboard
-void BitBoard::placePiece(enumPieceBB pieceType, enumSquareBB square){
+void BitBoard::placePiece(int pieceType, int square){
     U64 placementMask = 1ULL << square;
     pieceBB[pieceType] |= placementMask;
+    if (pieceType < 8) {
+        pieceBB[nWhite] |= placementMask;
+    }
+    else{
+        pieceBB[nBlack] |= placementMask;
+    }
+
 }
 
 // Functions to set and get bits on Bitboards.
@@ -244,6 +251,100 @@ U64 BitBoard::generateBlockers(int patternIndex, int bitsInMask, U64 mask) {
     return blockers;
 }
 
+void BitBoard::clearBoard(){
+    for(U64& pieceSet : pieceBB){
+        pieceSet = 0ULL;
+    }
+}
+void BitBoard::loadPosition(const std::string& fen) {
+    clearBoard();
+}
+
+U64 BitBoard::getAttacks(bool whiteToPlay, U64 blockers) {
+    U64 attacks = 0ULL;
+    if(whiteToPlay){
+        U64 pawns = getPieceSet(nWhitePawn);
+        U64 knights = getPieceSet(nWhiteKnight);
+        U64 bishops = getPieceSet(nWhiteBishop);
+        U64 rooks = getPieceSet(nWhiteRook);
+        U64 queens = getPieceSet(nWhiteQueen);
+        U64 king = getPieceSet(nWhiteKing);
+        while(pawns){
+            int square = getLSB(pawns);
+            attacks |= pawnAttacks[square][white];
+            clearBit(pawns,square);
+        }
+        while(knights){
+            int square = getLSB( knights);
+            attacks |= knightAttacks[square];
+            clearBit(knights,square);
+        }
+        while(bishops){
+            int square = getLSB( bishops);
+            attacks |= getBishopAttacks(square,blockers);
+            clearBit(bishops,square);
+        }
+        while(rooks){
+            int square = getLSB(rooks);
+            attacks |= getRookAttacks(square, blockers);
+            clearBit(rooks,square);
+        }
+        while(queens){
+            int square = getLSB(queens);
+            attacks |= (getRookAttacks(square,blockers) | getBishopAttacks(square,blockers));
+            clearBit(queens,square);
+        }
+        while(king){
+            int square = getLSB(king);
+            attacks |= kingAttacks[square];
+            clearBit(king,square);
+        }
+        }
+    else {
+        U64 pawns = getPieceSet(nBlackPawn);
+        U64 knights = getPieceSet(nBlackKnight);
+        U64 bishops = getPieceSet(nBlackBishop);
+        U64 rooks = getPieceSet(nBlackRook);
+        U64 queens = getPieceSet(nBlackQueen);
+        U64 king = getPieceSet(nBlackKing);
+        while (pawns) {
+            int square = getLSB(pawns);
+            attacks |= pawnAttacks[square][black];
+            clearBit(pawns, square);
+        }
+        while (knights) {
+            int square = getLSB(knights);
+            attacks |= knightAttacks[square];
+            clearBit(knights, square);
+        }
+        while (bishops) {
+            int square = getLSB(bishops);
+            attacks |= getBishopAttacks(square, blockers);
+            clearBit(bishops, square);
+        }
+        while (rooks) {
+            int square = getLSB(rooks);
+            attacks |= getRookAttacks(square, blockers);
+            clearBit(rooks, square);
+        }
+        while (queens) {
+            int square = getLSB(queens);
+            attacks |= (getRookAttacks(square, blockers) | getBishopAttacks(square, blockers));
+            clearBit(queens, square);
+        }
+        while (king) {
+            int square = getLSB(king);
+            attacks |= kingAttacks[square];
+            clearBit(king, square);
+        }
+    }
+    if (whiteToPlay){
+        return (attacks & ~getPieceSet(nWhite));
+    }
+    else{
+        return (attacks & ~getPieceSet(nBlack));
+    }
+}
 void BitBoard::loadAttackTables() {
     // Leaping pieces (king, nights, pawns) are implemented using simple 1D-array look-up tables.
     // Sliding pieces will require another solution as they can be blocked.
@@ -269,10 +370,20 @@ void BitBoard::loadAttackTables() {
     }
     // Pawns
     U64 pawn = 0ULL;
-    for(int i = 0; i <= 63; i++){
-        setBit(pawn,i);
-        this->pawnAttacks[i] = ((pawn << 7 ) & ~FILE_A) | ((pawn << 9) & ~FILE_H);
-        clearBit(pawn,i);
+    for(int color = white; color <= black; color++){
+        for(int i = A1; i <= H8; i++){
+            if(color == white){
+                setBit(pawn,i);
+                this->pawnAttacks[i][color] = ((pawn << 7 ) & ~FILE_A) | ((pawn << 9) & ~FILE_H);
+                clearBit(pawn,i);
+            }
+            else{
+                setBit(pawn,i);
+                this->pawnAttacks[i][color] = ((pawn >> 7 ) & ~FILE_H) | ((pawn >> 9) & ~FILE_A);
+                clearBit(pawn,i);
+
+            }
+        }
     }
     // implement sliding pieces (bishops, rooks, queens) with 2D-array lookup tables,
     // every square can be looked up for all possible blocker patterns.
@@ -315,7 +426,6 @@ U64 BitBoard::getRookAttacks(int square, U64 position) {
     U64 magicIndex = (blockers * rookMagics[square]) >> (64 - rookRellevantBits[square]);
 
     return rookAttacks[square][magicIndex];
-    // Weird squares A3, C3, G3, E4, B5, D6, G6
 }
 
 U64 BitBoard::getBishopAttacks(int square, U64 position) {
@@ -323,7 +433,6 @@ U64 BitBoard::getBishopAttacks(int square, U64 position) {
     U64 magicIndex = (blockers * bishopMagics[square]) >> (64 - bishopRellevantBits[square]);
 
     return bishopAttacks[square][magicIndex];
-    // Weird squares - all :(
 }
 
 

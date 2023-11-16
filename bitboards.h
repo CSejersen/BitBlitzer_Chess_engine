@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <iostream>
 #include <vector>
+#include <stack>
+#include <string>
 
 typedef uint64_t U64;
 
@@ -25,17 +27,22 @@ enum enumPieceBB
     nWhite,
     nBlack,
     nWhitePawn,
-    nBlackPawn,
-    nWhiteRook,
-    nBlackRook,
     nWhiteKnight,
-    nBlackKnight,
     nWhiteBishop,
-    nBlackBishop,
+    nWhiteRook,
     nWhiteQueen,
-    nBlackQueen,
     nWhiteKing,
+    nBlackPawn,
+    nBlackKnight,
+    nBlackBishop,
+    nBlackRook,
+    nBlackQueen,
     nBlackKing,
+};
+
+enum color{
+    white,
+    black,
 };
 
 // Files and ranks described by hexadecimal numbers. (Values assigned in bitboards.cpp)
@@ -73,11 +80,14 @@ class BitBoard{
 public:
     BitBoard();
 
-    // getters and setters
+    // Util functions
     U64 getPieceSet(enumPieceBB) const;
     U64 getRookAttacks(int square, U64 position);
     U64 getBishopAttacks(int square, U64 position);
     U64 generateBlockers(int,int,U64);
+    U64 getAttacks(bool WhiteToPlay, U64 blockers);
+    void loadPosition(const std::string&);
+    void clearBoard();
 
     // Static bit manipulation functions
     static void setBit(U64&, int);
@@ -88,24 +98,23 @@ public:
 
     // debug functions
     static void printBB(const U64& bb) ;
-    void placePiece(enumPieceBB, enumSquareBB);
+    void placePiece(int piece, int square);
 
     // attack look-up tables (loaded by loadAttackTables())
     U64 knightAttacks[64];
     U64 kingAttacks[64];
-    U64 pawnAttacks[64];
+    // last pawn index is for color
+    U64 pawnAttacks[64][2];
 
     // attack masks to use with magic bitboards
-    U64 bishopAttackMask[64];
-    U64 rookAttackMask[64];
 
-    U64 rookAttacksOnTheFly(int square, U64 blockers);
-    U64 bishopAttacksOnTheFly(int square, U64 blockers);
 
 private:
     // bitboards with current game-state
     U64 pieceBB[14];
     // All possible rook and bishop moves stored by blocker patterns using magicNumber indexing
+    U64 bishopAttackMask[64];
+    U64 rookAttackMask[64];
     U64 bishopAttacks[64][512];
     U64 rookAttacks[64][4096];
 
@@ -121,8 +130,12 @@ private:
     // generates attack masks for magic bitboard implementation
     void generateBishopAttackMasks();
     void generateRookAttackMasks();
+    // generate moves for magic bitboards
+    U64 rookAttacksOnTheFly(int square, U64 blockers);
+    U64 bishopAttacksOnTheFly(int square, U64 blockers);
+
     bool isKingInCheck();
-    // returns attack maps gives square and blocker-pattern.
+
 
 
 
