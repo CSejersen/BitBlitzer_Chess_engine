@@ -19,18 +19,18 @@ int main()
     std::cout << "printing bishop attack mask for E4:" << std::endl;
     BitBoard::printBB(bitBoards.bishopAttackMask[E4]);
 
-    std::cout << "printing all rook attacks with white bishops on the board:" << std::endl;
+    bitBoards.placePiece(nWhiteBishop,E4);
+    bitBoards.placePiece(nWhiteBishop,B3);
+    bitBoards.placePiece(nWhiteBishop,D6);
 
-    // bitBoards.placePiece(nWhitePawn,E4);
-
-   for(int square = A1;square <= H8; square++){
+    for(int square = A1; square <= H8; square++){
         U64 moves = bitBoards.getRookAttacks(square,bitBoards.getPieceSet(nWhiteBishop));
         BitBoard::printBB(moves);
     }
-   U64 test = 0b100000;
-   std::cout << BitBoard::getLSB(test) << std::endl;
-   BitBoard::clearBit(test,BitBoard::getLSB(test));
-    std::cout << test << std::endl;
+
+
+
+
 
 
 

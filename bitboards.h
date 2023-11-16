@@ -77,6 +77,8 @@ public:
     U64 getPieceSet(enumPieceBB) const;
     U64 getRookAttacks(int square, U64 position);
     U64 getBishopAttacks(int square, U64 position);
+    U64 generateBlockers(int,int,U64);
+
     // Static bit manipulation functions
     static void setBit(U64&, int);
     static U64 getBit(U64&, int);
@@ -107,6 +109,9 @@ private:
     U64 bishopAttacks[64][512];
     U64 rookAttacks[64][4096];
 
+    std::vector<Move> pseudoLegalMoves;
+
+
     // utility bitboards
     const U64 emptyBB = 0ULL;
     const U64 fullyOccupiedBB = 0xffffffffffffffffULL;
@@ -116,7 +121,7 @@ private:
     // generates attack masks for magic bitboard implementation
     void generateBishopAttackMasks();
     void generateRookAttackMasks();
-    U64 generateBlockers(int,int,U64);
+    bool isKingInCheck();
     // returns attack maps gives square and blocker-pattern.
 
 

@@ -100,7 +100,7 @@ int BitBoard::getLSB(const U64& bb) {
 int BitBoard::countBits(U64 bb) {
     // bit count
     int count = 0;
-    // pop bits untill bitboard is empty
+    // pop bits until bitboard is empty
     while (bb) {
         // increment count
         count++;
@@ -157,20 +157,20 @@ U64 BitBoard::bishopAttacksOnTheFly(int sq, U64 blockers) {
     int file = sq % 8; // file ranging from 0-7
     int rank = sq / 8; // rank ranging from 0-7
 
-    for (int r = rank + 1, f = file + 1; r <= 6 && f <= 6; r++, f++) {
-        this->bishopAttackMask[sq] |= (1ULL << ((r * 8) + f));
+    for (int r = rank + 1, f = file + 1; r <= 7 && f <= 7; r++, f++) {
+        attacks |= (1ULL << ((r * 8) + f));
         if (blockers & (1ULL << ((r * 8) + f))) break;
     }
-    for (int r = rank + 1, f = file - 1; r <= 6 && f > 0; r++, f--) {
-        this->bishopAttackMask[sq] |= 1ULL << ((r * 8) + f);
+    for (int r = rank + 1, f = file - 1; r <= 7 && f >= 0; r++, f--) {
+        attacks |= 1ULL << ((r * 8) + f);
         if (blockers & (1ULL << ((r * 8) + f))) break;
     }
-    for (int r = rank - 1, f = file + 1; r > 0 && f <= 6; r--, f++) {
-        this->bishopAttackMask[sq] |= 1ULL << ((r * 8) + f);
+    for (int r = rank - 1, f = file + 1; r >= 0 && f <= 7; r--, f++) {
+        attacks |= 1ULL << ((r * 8) + f);
         if (blockers & (1ULL << ((r * 8) + f))) break;
     }
-    for (int r = rank - 1, f = file - 1; r > 0 && f > 0; r--, f--) {
-        this->bishopAttackMask[sq] |= 1ULL << ((r * 8) + f);
+    for (int r = rank - 1, f = file - 1; r >= 0 && f >= 0; r--, f--) {
+        attacks |= 1ULL << ((r * 8) + f);
         if (blockers & (1ULL << ((r * 8) + f))) break;
     }
     return attacks;
@@ -208,22 +208,22 @@ U64  BitBoard::rookAttacksOnTheFly(int sq, U64 blockers) {
 
     //generating attack mask
     // North movement
-    for (int r = rank + 1; r <= 6; r++) {
+    for (int r = rank + 1; r <= 7; r++) {
         attacks |= (1ULL << ((r * 8) + file));
         if((blockers & (1ULL << ((r*8) + file)))) break;
     }
     // East movement
-    for (int f = file - 1; f > 0; f--) {
+    for (int f = file - 1; f >= 0; f--) {
         attacks |= 1ULL << ((rank * 8) + f);
         if((blockers & (1ULL << ((rank*8) + f)))) break;
     }
     // West movement
-    for (int f = file + 1; f <= 6; f++) {
+    for (int f = file + 1; f <= 7; f++) {
         attacks |= 1ULL << ((rank * 8) + f);
         if((blockers & (1ULL << ((rank *8 ) + f)))) break;
     }
     // South movement
-    for (int r = rank - 1; r > 0; r--) {
+    for (int r = rank - 1; r >= 0; r--) {
         attacks |= 1ULL << ((r * 8) + file);
         if((blockers & (1ULL << ((r*8) + file)))) break;
     }
@@ -235,13 +235,11 @@ U64 BitBoard::generateBlockers(int patternIndex, int bitsInMask, U64 mask) {
     U64 blockers = 0ULL;
     U64 attackMask = mask;
     for (int i = 0; i < bitsInMask; i++) {
-        int square = getLSB(attackMask);
+        U64 square = getLSB(attackMask);
         clearBit(attackMask, square);
-
-        if (patternIndex & 1 << i) {
-            blockers |= 1 << square;
+        if (patternIndex & (1 << i)) {
+            blockers |= 1ULL << square;
         }
-
     }
     return blockers;
 }
