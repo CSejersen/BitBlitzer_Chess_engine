@@ -6,7 +6,7 @@
 
 typedef uint64_t U64;
 
-// Enumeration for squares
+// Enumeration for squares A1 = 0, H8 = 63
 enum enumSquareBB
 {
     A1, B1, C1, D1, E1, F1, G1, H1,
@@ -19,7 +19,7 @@ enum enumSquareBB
     A8, B8, C8, D8, E8, F8, G8, H8,
 };
 
-// Enumeration for piece sets
+// Enumeration for all 14 piece sets
 enum enumPieceBB
 {
     nWhite,
@@ -38,7 +38,7 @@ enum enumPieceBB
     nBlackKing,
 };
 
-// Constants for files and ranks described by hexadecimal. (Values assigned in bitboards.cpp)
+// Files and ranks described by hexadecimal numbers. (Values assigned in bitboards.cpp)
 extern const U64 FILE_A;
 extern const U64 FILE_B;
 extern const U64 FILE_C;
@@ -59,7 +59,7 @@ extern const U64 RANK_6;
 extern const U64 RANK_7;
 extern const U64 RANK_8;
 
-// Movement function using bit-shifts maybe useful later:
+// Movement functions using bit-shifts maybe useful later...
 //inline U64 south(U64 bb){return bb >> 8;}
 //inline U64 north(U64 bb){return bb << 8;}
 //inline U64 east(U64 bb){return (bb & ~FILE_H) >> 1;}
@@ -75,29 +75,52 @@ public:
 
     // getters and setters
     U64 getPieceSet(enumPieceBB) const;
-
+    U64 getRookAttacks(int square, U64 position);
+    U64 getBishopAttacks(int square, U64 position);
     // Static bit manipulation functions
-    static void set_bit(U64&, int);
-    static U64 get_bit(U64&, int) ;
-    static void clear_bit(U64&, int i);
-    static int get_LSB(U64) ;
+    static void setBit(U64&, int);
+    static U64 getBit(U64&, int);
+    static void clearBit(U64&, int i);
+    static int getLSB(const U64&);
+    static int countBits(U64);
 
     // debug functions
     static void printBB(const U64& bb) ;
     void placePiece(enumPieceBB, enumSquareBB);
 
+    // attack look-up tables (loaded by loadAttackTables())
     U64 knightAttacks[64];
     U64 kingAttacks[64];
     U64 pawnAttacks[64];
 
+    // attack masks to use with magic bitboards
+    U64 bishopAttackMask[64];
+    U64 rookAttackMask[64];
+
+    U64 rookAttacksOnTheFly(int square, U64 blockers);
+    U64 bishopAttacksOnTheFly(int square, U64 blockers);
 
 private:
+    // bitboards with current game-state
     U64 pieceBB[14];
+    // All possible rook and bishop moves stored by blocker patterns using magicNumber indexing
+    U64 bishopAttacks[64][512];
+    U64 rookAttacks[64][4096];
+
+    // utility bitboards
     const U64 emptyBB = 0ULL;
-    const U64 occupiedBB = 0xffffffffffffffffULL;
+    const U64 fullyOccupiedBB = 0xffffffffffffffffULL;
 
     //for calculating all attack-tables when class is created.
     void loadAttackTables();
+    // generates attack masks for magic bitboard implementation
+    void generateBishopAttackMasks();
+    void generateRookAttackMasks();
+    U64 generateBlockers(int,int,U64);
+    // returns attack maps gives square and blocker-pattern.
+
+
+
 
 
 };

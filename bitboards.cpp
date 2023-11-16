@@ -1,4 +1,5 @@
 #include "bitboards.h"
+#include "magics.h"
 
 // constants for using ranks and files with bitboards
 const U64 FILE_A = 0x8080808080808080ULL;
@@ -21,12 +22,39 @@ const U64 RANK_6 = 0xff0000000000ULL;
 const U64 RANK_7 = 0xff000000000000ULL;
 const U64 RANK_8 = 0xff00000000000000ULL;
 
+// rook rellevant occupancy bits
+int rookRellevantBits[64] = {
+        12, 11, 11, 11, 11, 11, 11, 12,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        12, 11, 11, 11, 11, 11, 11, 12
+};
 
+// bishop rellevant occupancy bits
+int bishopRellevantBits[64] = {
+        6, 5, 5, 5, 5, 5, 5, 6,
+        5, 5, 5, 5, 5, 5, 5, 5,
+        5, 5, 7, 7, 7, 7, 5, 5,
+        5, 5, 7, 9, 9, 7, 5, 5,
+        5, 5, 7, 9, 9, 7, 5, 5,
+        5, 5, 7, 7, 7, 7, 5, 5,
+        5, 5, 5, 5, 5, 5, 5, 5,
+        6, 5, 5, 5, 5, 5, 5, 6
+};
 
 // Bitboards constructor
 BitBoard::BitBoard(){
+    // generate attack masks for magic bitboards, results used by loadAttackTables().
+    generateBishopAttackMasks();
+    generateRookAttackMasks();
+
     // Calculate all attack-tables
     loadAttackTables();
+
     pieceBB[nWhite] =           0b0000000000000000000000000000000000000000000000001111111111111111;
     pieceBB[nBlack] =           0b1111111111111111000000000000000000000000000000000000000000000000;
 
@@ -57,17 +85,30 @@ void BitBoard::placePiece(enumPieceBB pieceType, enumSquareBB square){
 }
 
 // Functions to set and get bits on Bitboards.
-void BitBoard::set_bit(U64 &bb, int i){
+void BitBoard::setBit(U64 &bb, int i){
     (bb) |= (1ULL << i);
 }
-U64 BitBoard::get_bit(U64 &bb, int i) {
+U64 BitBoard::getBit(U64 &bb, int i) {
     return (bb) & (1ULL << i);
 }
-void BitBoard::clear_bit(U64 &bb, int i) {
+void BitBoard::clearBit(U64 &bb, int i) {
     (bb) &= ~(1ULL << i);
 }
-int BitBoard::get_LSB(U64 bb) {
+int BitBoard::getLSB(const U64& bb) {
     return (__builtin_ctzll(bb));
+}
+int BitBoard::countBits(U64 bb) {
+    // bit count
+    int count = 0;
+    // pop bits untill bitboard is empty
+    while (bb) {
+        // increment count
+        count++;
+        // consecutively reset least significant 1st bit
+        bb &= bb - 1;
+
+    }
+    return count;
 }
 
 // prints a nice view of bitboard for a given piece.
@@ -87,41 +128,204 @@ void BitBoard::printBB(const U64& bb) {
     std::cout << std::endl;
 }
 
+void BitBoard::generateBishopAttackMasks() {
+    for (int sq = A1; sq <= H8; sq++) {
+        // making sure we start at 0
+        this->bishopAttackMask[sq] = 0ULL;
+
+        int file = sq % 8; // file ranging from 0-7
+        int rank = sq / 8; // rank ranging from 0-7
+
+        for (int r = rank + 1, f = file + 1; r <= 6 && f <= 6; r++, f++) {
+            this->bishopAttackMask[sq] |= (1ULL << ((r * 8) + f));
+        }
+        for (int r = rank + 1, f = file - 1; r <= 6 && f > 0; r++, f--) {
+            this->bishopAttackMask[sq] |= 1ULL << ((r * 8) + f);
+        }
+        for (int r = rank - 1, f = file + 1; r > 0 && f <= 6; r--, f++) {
+            this->bishopAttackMask[sq] |= 1ULL << ((r * 8) + f);
+        }
+        for (int r = rank - 1, f = file - 1; r > 0 && f > 0; r--, f--) {
+            this->bishopAttackMask[sq] |= 1ULL << ((r * 8) + f);
+       }
+    }
+}
+
+U64 BitBoard::bishopAttacksOnTheFly(int sq, U64 blockers) {
+    U64 attacks = 0ULL;
+
+    int file = sq % 8; // file ranging from 0-7
+    int rank = sq / 8; // rank ranging from 0-7
+
+    for (int r = rank + 1, f = file + 1; r <= 6 && f <= 6; r++, f++) {
+        this->bishopAttackMask[sq] |= (1ULL << ((r * 8) + f));
+        if (blockers & (1ULL << ((r * 8) + f))) break;
+    }
+    for (int r = rank + 1, f = file - 1; r <= 6 && f > 0; r++, f--) {
+        this->bishopAttackMask[sq] |= 1ULL << ((r * 8) + f);
+        if (blockers & (1ULL << ((r * 8) + f))) break;
+    }
+    for (int r = rank - 1, f = file + 1; r > 0 && f <= 6; r--, f++) {
+        this->bishopAttackMask[sq] |= 1ULL << ((r * 8) + f);
+        if (blockers & (1ULL << ((r * 8) + f))) break;
+    }
+    for (int r = rank - 1, f = file - 1; r > 0 && f > 0; r--, f--) {
+        this->bishopAttackMask[sq] |= 1ULL << ((r * 8) + f);
+        if (blockers & (1ULL << ((r * 8) + f))) break;
+    }
+    return attacks;
+}
+
+void BitBoard::generateRookAttackMasks() {
+    for (int sq = A1; sq <= H8; sq++) {
+        // making sure we start at 0
+        this->rookAttackMask[sq] = 0ULL;
+
+        int file = sq % 8; // file ranging from 0-7
+        int rank = sq / 8; // rank ranging from 0-7
+
+        //generating attack mask
+        for (int r = rank + 1; r <= 6; r++) {
+            this->rookAttackMask[sq] |= (1ULL << ((r * 8) + file));
+        }
+        for (int f = file - 1; f > 0; f--) {
+            this->rookAttackMask[sq] |= 1ULL << ((rank * 8) + f);
+        }
+        for (int f = file + 1; f <= 6; f++) {
+            this->rookAttackMask[sq] |= 1ULL << ((rank * 8) + f);
+        }
+        for (int r = rank - 1; r > 0; r--) {
+            this->rookAttackMask[sq] |= 1ULL << ((r * 8) + file);
+        }
+    }
+}
+
+U64  BitBoard::rookAttacksOnTheFly(int sq, U64 blockers) {
+    U64  attacks = 0ULL;
+
+    int file = sq % 8; // file ranging from 0-7
+    int rank = sq / 8; // rank ranging from 0-7
+
+    //generating attack mask
+    // North movement
+    for (int r = rank + 1; r <= 6; r++) {
+        attacks |= (1ULL << ((r * 8) + file));
+        if((blockers & (1ULL << ((r*8) + file)))) break;
+    }
+    // East movement
+    for (int f = file - 1; f > 0; f--) {
+        attacks |= 1ULL << ((rank * 8) + f);
+        if((blockers & (1ULL << ((rank*8) + f)))) break;
+    }
+    // West movement
+    for (int f = file + 1; f <= 6; f++) {
+        attacks |= 1ULL << ((rank * 8) + f);
+        if((blockers & (1ULL << ((rank *8 ) + f)))) break;
+    }
+    // South movement
+    for (int r = rank - 1; r > 0; r--) {
+        attacks |= 1ULL << ((r * 8) + file);
+        if((blockers & (1ULL << ((r*8) + file)))) break;
+    }
+
+    return attacks;
+}
+
+U64 BitBoard::generateBlockers(int patternIndex, int bitsInMask, U64 mask) {
+    U64 blockers = 0ULL;
+    U64 attackMask = mask;
+    for (int i = 0; i < bitsInMask; i++) {
+        int square = getLSB(attackMask);
+        clearBit(attackMask, square);
+
+        if (patternIndex & 1 << i) {
+            blockers |= 1 << square;
+        }
+
+    }
+    return blockers;
+}
+
 void BitBoard::loadAttackTables() {
-    // Leaping pieces (king, nights, pawns) are implemented using simple look-up tables.
-    // Sliding pieces will require another solution as tshey can be blocked.
+    // Leaping pieces (king, nights, pawns) are implemented using simple 1D-array look-up tables.
+    // Sliding pieces will require another solution as they can be blocked.
 
     // Generating lookup table for knights
     U64 knight = 0ULL;
     for (int i = 0; i <= 63; i++) {
-        set_bit(knight, i);
+        setBit(knight, i);
         this->knightAttacks[i] = (((knight >> 6) | (knight << 10)) & ~FILE_GH) |
                                  (((knight >> 10) | (knight << 6)) & ~FILE_AB) |
                                  (((knight >> 15) | (knight << 17)) & ~FILE_H) |
                                  (((knight >> 17) | (knight << 15)) & ~FILE_A);
-        clear_bit(knight, i);
+        clearBit(knight, i);
     }
     // Kings
     U64 king = 0LL;
     for (int i = 0; i <= 63; i++) {
-        set_bit(king, i);
+        setBit(king, i);
         this->kingAttacks[i] = (((king << 9) | (king << 1) | (king >> 7)) & ~FILE_H) |
                                ((king << 8) | (king >> 8)) |
                                (((king << 7) | (king >> 1) | (king >> 9)) & ~FILE_A);
-        clear_bit(king, i);
+        clearBit(king, i);
     }
     // Pawns
     U64 pawn = 0ULL;
     for(int i = 0; i <= 63; i++){
-        set_bit(pawn,i);
+        setBit(pawn,i);
         this->pawnAttacks[i] = ((pawn << 7 ) & ~FILE_A) | ((pawn << 9) & ~FILE_H);
-        clear_bit(pawn,i);
+        clearBit(pawn,i);
     }
-
-    // Sliding pieces implemented with 2D lookup table,
+    // implement sliding pieces (bishops, rooks, queens) with 2D-array lookup tables,
     // every square can be looked up for all possible blocker patterns.
 
-    // hmm....
+    // Rooks
+    // looping over all 64 squares
+    for(int i = A1; i <= H8; i++){
+        //getting relevant attack mask
+        U64 mask = rookAttackMask[i];
+        // counting number of attacked squares
+        int bitCount = countBits(mask);
+        // calculating number of possible blocker patterns
+        int blockerVariations = 1 << bitCount;
+
+        // looping over all possible blocker variations. think of index as a binary mask.
+        for (int index = 0; index < blockerVariations; index++){
+
+            U64 blockers = generateBlockers(index, bitCount,mask);
+            U64 magicIndex = (blockers * rookMagics[i]) >> (64 - rookRellevantBits[i]);
+            rookAttacks[i][magicIndex] = rookAttacksOnTheFly(i,blockers);
+        }
+    }
+    // Bishops
+
+    for(int i = A1; i <=H8; i++){
+        U64 mask = bishopAttackMask[i];
+        int bitCount = countBits(mask);
+        int blockerVariations = 1 << bitCount;
+
+        for (int index = 0; index < blockerVariations; index++){
+            U64 blockers = generateBlockers(index,bitCount,mask);
+            U64 magicIndex = (blockers * bishopMagics[i]) >> (64 - bishopRellevantBits[i]);
+            bishopAttacks[i][magicIndex] = bishopAttacksOnTheFly(i,blockers);
+        }
+    }
+}
+
+U64 BitBoard::getRookAttacks(int square, U64 position) {
+    U64 blockers = position & rookAttackMask[square];
+    U64 magicIndex = (blockers * rookMagics[square]) >> (64 - rookRellevantBits[square]);
+
+    return rookAttacks[square][magicIndex];
+    // Weird squares A3, C3, G3, E4, B5, D6, G6
+}
+
+U64 BitBoard::getBishopAttacks(int square, U64 position) {
+    U64 blockers = position & bishopAttackMask[square];
+    U64 magicIndex = (blockers * bishopMagics[square]) >> (64 - bishopRellevantBits[square]);
+
+    return bishopAttacks[square][magicIndex];
+    // Weird squares - all :(
 }
 
 

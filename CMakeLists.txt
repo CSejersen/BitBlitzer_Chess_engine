@@ -8,4 +8,5 @@ add_executable(BBchess_engine main.cpp
         bitboards.cpp
         move.h
         move.cpp
+        magics.h
 )
