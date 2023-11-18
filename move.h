@@ -1,7 +1,13 @@
 #pragma once
 #include <string>
 
-struct Move{
+class Move{
+public:
+    Move(std::string start, std::string target);
+    std::string getStartSquare() const;
+    std::string getTargetSquare() const;
+private:
     std::string startSquare;
     std::string targetSquare;
+
 };

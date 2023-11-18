@@ -98,7 +98,7 @@ public:
     void loadFenPosition(const std::string& fenString);
 
     // attack getters
-    U64 getAttacks(U64 blockers) const; // returns all possible attacks for color to move.
+    U64 getAttacks() const; // returns all possible attacks for color to move.
     U64 getRookAttacks(int square, U64 position) const;
     U64 getBishopAttacks(int square, U64 position) const;
     U64 getKnightAttacks(int square);
@@ -111,6 +111,7 @@ public:
     static void clearBit(U64&, int i);
     static int getLSB(const U64&);
     static int countBits(U64);
+    std::list<Move> gameHistory;
 
     // debug functions
     static void printBB(const U64& bb) ;
@@ -138,7 +139,6 @@ private:
     bool whiteToPlay{};
     bool castleingRights[4]{};
     bool KingInCheck{};
-    std::list<Move> gameHistory;
 
     //for calculating all attack-tables at compile-time.
     void loadAttackTables();

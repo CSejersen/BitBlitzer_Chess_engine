@@ -12,12 +12,16 @@ int main(int argc, char* argv[])
     BitBoard board;
     board.loadStartingPosition();
 
-    Move move;
-    move.startSquare = "e2";
-    move.targetSquare = "e4";
+    Move move("e2","e4");
+    Move move2("e7","e5");
 
-    BitBoard::printBB(board.getPieceSet(nWhitePawn));
     board.makeMove(move);
-    BitBoard::printBB(board.getPieceSet(nWhite));
+    BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
+    board.makeMove(move2);
+    BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
+
+    for(auto & it : board.gameHistory){
+        std::cout << it.getStartSquare() << "-" << it.getTargetSquare() << std::endl;
+    }
 
 }
