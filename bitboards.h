@@ -5,6 +5,7 @@
 #include <vector>
 #include <stack>
 #include <string>
+#include <list>
 
 typedef uint64_t U64;
 
@@ -20,14 +21,14 @@ enum enumSquareBB
     A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8,
 };
+
 enum castleingRight{
     whiteKingside,
     whiteQueenSide,
     blackKingside,
     blackQueenside,
-
-
 };
+
 // Enumeration for all 14 piece sets
 enum enumPieceBB
 {
@@ -89,14 +90,22 @@ public:
 
     // Util functions
     U64 getPieceSet(enumPieceBB) const;
-    U64 getRookAttacks(int square, U64 position);
-    U64 getBishopAttacks(int square, U64 position);
-    U64 generateBlockers(int,int,U64);
-    U64 getAttacks(U64 blockers);
-    void loadFenPosition(const std::string& fenString);
-    void clearBoard();
+    int coordinateToIndex(std::string coordinate);
 
-    // Static bit manipulation functions
+    // Position loading
+    void clearBoard();
+    void loadStartingPosition();
+    void loadFenPosition(const std::string& fenString);
+
+    // attack getters
+    U64 getAttacks(U64 blockers) const; // returns all possible attacks for color to move.
+    U64 getRookAttacks(int square, U64 position) const;
+    U64 getBishopAttacks(int square, U64 position) const;
+    U64 getKnightAttacks(int square);
+    U64 getPawnAttacks(int square, int color);
+    U64 getKingAttacks(int square);
+
+    // Bit manipulation functions
     static void setBit(U64&, int);
     static U64 getBit(U64&, int);
     static void clearBit(U64&, int i);
@@ -106,40 +115,40 @@ public:
     // debug functions
     static void printBB(const U64& bb) ;
     void placePiece(int piece, int square);
-
-    // attack look-up tables (loaded by loadAttackTables())
-    U64 knightAttacks[64];
-    U64 kingAttacks[64];
-    // last pawn index is for color
-    U64 pawnAttacks[64][2];
-    U64 enPassantSquares;
-    int halfmoveClock;
-    int moveNum;
-
-    bool whiteToPlay;
-    bool castleingRights[4];
-    // attack masks to use with magic bitboards
-
+    void makeMove(const Move&);
 
 private:
-    // bitboards with current game-state
-    U64 pieceBB[14];
-    // All possible rook and bishop moves stored by blocker patterns using magicNumber indexing
-    U64 bishopAttackMask[64];
-    U64 rookAttackMask[64];
-    U64 bishopAttacks[64][512];
-    U64 rookAttacks[64][4096];
+    // bitboards containing current position
+    U64 pieceBB[14]{};
 
-    std::vector<Move> pseudoLegalMoves;
+    // Arrays of all possible attacks (initialized by BitBoard constructor)
+    // rook and bishop moves stored by blocker patterns using magic number indexing
+    U64 bishopAttackMask[64]{};
+    U64 rookAttackMask[64]{};
+    U64 bishopAttacks[64][512]{};
+    U64 rookAttacks[64][4096]{};
+    U64 knightAttacks[64]{};
+    U64 kingAttacks[64]{};
+    U64 pawnAttacks[64][2]{}; // last pawn index is for color
 
+    // Game state
+    U64 enPassantSquares{};
+    int halfmoveClock{};
+    int moveNum{};
+    bool whiteToPlay{};
+    bool castleingRights[4]{};
+    bool KingInCheck{};
+    std::list<Move> gameHistory;
 
-    // utility bitboards
-    const U64 emptyBB = 0ULL;
-    const U64 fullyOccupiedBB = 0xffffffffffffffffULL;
-
-    //for calculating all attack-tables when class is created.
+    //for calculating all attack-tables at compile-time.
     void loadAttackTables();
-    //fen loading utility functions
+    U64 generateBlockers(int,int,U64) const;
+    void generateBishopAttackMasks();
+    void generateRookAttackMasks();
+    U64 rookAttacksOnTheFly(int square, U64 blockers);
+    U64 bishopAttacksOnTheFly(int square, U64 blockers);
+
+    // FEN parsing utility functions
     int fenParsePieces(std::string& fen); // returns index number reached in fen-string
     int fenParseTurn(int index, std::string& fen); // returns index number reached in fen-string
     int fenParseCastleingRights(int index, std::string& fen); // returns index number reached in fen-string
@@ -147,12 +156,7 @@ private:
     int fenParseHalfmove(int index, std::string& fen); // returns index number reached in fen-string
     void fenParseMoveNum(int index, std::string& fen); // returns index number reached in fen-string
 
-    // generates attack masks for magic bitboard implementation
-    void generateBishopAttackMasks();
-    void generateRookAttackMasks();
-    // generate moves for magic bitboards
-    U64 rookAttacksOnTheFly(int square, U64 blockers);
-    U64 bishopAttacksOnTheFly(int square, U64 blockers);
-
-    bool isKingInCheck();
+    // Move generation
+    std::vector<Move> pseudoLegal;
+    void undoMove(const Move&);
 };

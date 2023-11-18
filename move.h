@@ -1,17 +1,7 @@
-//
-// Created by Christian Sejersen on 13/11/2023.
-//
-
-#ifndef BBCHESS_ENGINE_MOVE_H
-#define BBCHESS_ENGINE_MOVE_H
 #pragma once
+#include <string>
 
-class Move{
-private:
-    int startSquare;
-    int targetSqare;
-
-public:
+struct Move{
+    std::string startSquare;
+    std::string targetSquare;
 };
-
-#endif //BBCHESS_ENGINE_MOVE_H
