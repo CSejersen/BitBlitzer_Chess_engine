@@ -3,46 +3,40 @@
 #include <iostream>
 #include <string>
 #include <SDL.h>
-
+#include "SDL_functions.h"
+//#include <SDL_image.h>
 
 int main(int argc, char* argv[])
 {
-    SDL_INIT_EVERYTHING;
-    BitBoard bitBoards;
+    BitBoard board;
 
-    bool whiteToPlay = true;
-    bitBoards.placePiece(nWhiteRook,F4);
-    bitBoards.placePiece(nWhiteBishop,A3);
-    bitBoards.placePiece(nWhiteKing,D6);
-    bitBoards.placePiece(nBlackKnight,F6);
-    bitBoards.placePiece(nBlackBishop,A4);
+    std::string fen = "8/5k2/3p4/1p1Pp2p/pP2Pp1P/P4P1K/8/8 b KQk e4 99 50";
 
-    if(whiteToPlay){
-        std::cout << "white pieces: " << std::endl;
-        BitBoard::printBB(bitBoards.getPieceSet(nWhite));
-    }
-    else{
-        std::cout << "black pieces: " << std::endl;
-        BitBoard::printBB(bitBoards.getPieceSet(nBlack));
-    }
-    U64 position = (bitBoards.getPieceSet(nWhite) | bitBoards.getPieceSet(nBlack));
-    U64 attacks = bitBoards.getAttacks(whiteToPlay,position);
+    board.loadFenPosition(fen);
+    U64 blockers = (board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
+    U64 attacks = board.getAttacks(blockers);
 
-    if(whiteToPlay){
-        std::cout << "white attacks: " << std::endl;
+    if(board.whiteToPlay){
+        std::cout << "White to move!: " << std::endl;
+        std::cout << "White pieces: " << std::endl;
+        BitBoard::printBB(board.getPieceSet(nWhite));
+        std::cout << "White attacks: " << std::endl;
         BitBoard::printBB(attacks);
     }
     else{
-        std::cout << "black attacks: " << std::endl;
+        std::cout << "Black to move!: " << std::endl;
+        std::cout << "Black pieces: " << std::endl;
+        BitBoard::printBB(board.getPieceSet(nBlack));
+        std::cout << "Black attacks: " << std::endl;
         BitBoard::printBB(attacks);
     }
+    std::cout << "En-passant squares: " << std::endl;
+    BitBoard::printBB(board.enPassantSquares);
 
-
-
-
-    // BitBoard::printBB(bitBoards.bishopAttacksOnTheFly(E4,bitBoards.getPieceSet(nWhitePawn)));
-
-
-
+    std::cout << "Castleing Rights: " << std::endl;
+    for(int i = 0; i < 4; i++){
+        std::cout << "at index " << i << " " << board.castleingRights[i] << std::endl;
     }
-
+    std::cout << "Halfmove clock: " << board.halfmoveClock << std::endl;
+    std::cout << "Move number: " << board.moveNum << std::endl;
+}

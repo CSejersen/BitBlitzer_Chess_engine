@@ -70,6 +70,13 @@ build CMakeFiles/BBchess_engine.dir/move.cpp.o: CXX_COMPILER__BBchess_engine_uns
   OBJECT_DIR = CMakeFiles/BBchess_engine.dir
   OBJECT_FILE_DIR = CMakeFiles/BBchess_engine.dir
 
+build CMakeFiles/BBchess_engine.dir/SDL_functions.cpp.o: CXX_COMPILER__BBchess_engine_unscanned_Debug /Users/sejersen/dev/BBchess-engine/SDL_functions.cpp || cmake_object_order_depends_target_BBchess_engine
+  DEP_FILE = CMakeFiles/BBchess_engine.dir/SDL_functions.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -fcolor-diagnostics
+  INCLUDES = -I/Library/Frameworks/SDL2.framework/Headers
+  OBJECT_DIR = CMakeFiles/BBchess_engine.dir
+  OBJECT_FILE_DIR = CMakeFiles/BBchess_engine.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target BBchess_engine
@@ -78,7 +85,7 @@ build CMakeFiles/BBchess_engine.dir/move.cpp.o: CXX_COMPILER__BBchess_engine_uns
 #############################################
 # Link the executable BBchess_engine
 
-build BBchess_engine: CXX_EXECUTABLE_LINKER__BBchess_engine_Debug CMakeFiles/BBchess_engine.dir/main.cpp.o CMakeFiles/BBchess_engine.dir/bitboards.cpp.o CMakeFiles/BBchess_engine.dir/move.cpp.o | /opt/homebrew/lib/libSDL2main.a /opt/homebrew/lib/libSDL2.dylib
+build BBchess_engine: CXX_EXECUTABLE_LINKER__BBchess_engine_Debug CMakeFiles/BBchess_engine.dir/main.cpp.o CMakeFiles/BBchess_engine.dir/bitboards.cpp.o CMakeFiles/BBchess_engine.dir/move.cpp.o CMakeFiles/BBchess_engine.dir/SDL_functions.cpp.o | /opt/homebrew/lib/libSDL2main.a /opt/homebrew/lib/libSDL2.dylib
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk
   LINK_LIBRARIES = -Wl,-rpath,/opt/homebrew/Cellar/sdl2/2.28.5/lib  /opt/homebrew/lib/libSDL2main.a  /opt/homebrew/lib/libSDL2.dylib  -framework Cocoa
   LINK_PATH = -L/opt/homebrew/Cellar/sdl2/2.28.5/lib

@@ -18,6 +18,8 @@ add_executable(BBchess_engine main.cpp
         move.h
         move.cpp
         magics.h
+        SDL_functions.cpp
+        SDL_functions.h
 )
 
 target_link_libraries(BBchess_engine ${SDL2_LIBRARY} )

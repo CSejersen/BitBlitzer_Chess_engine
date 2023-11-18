@@ -20,18 +20,25 @@ enum enumSquareBB
     A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8,
 };
+enum castleingRight{
+    whiteKingside,
+    whiteQueenSide,
+    blackKingside,
+    blackQueenside,
 
+
+};
 // Enumeration for all 14 piece sets
 enum enumPieceBB
 {
     nWhite,
-    nBlack,
     nWhitePawn,
     nWhiteKnight,
     nWhiteBishop,
     nWhiteRook,
     nWhiteQueen,
     nWhiteKing,
+    nBlack,
     nBlackPawn,
     nBlackKnight,
     nBlackBishop,
@@ -85,8 +92,8 @@ public:
     U64 getRookAttacks(int square, U64 position);
     U64 getBishopAttacks(int square, U64 position);
     U64 generateBlockers(int,int,U64);
-    U64 getAttacks(bool WhiteToPlay, U64 blockers);
-    void loadPosition(const std::string&);
+    U64 getAttacks(U64 blockers);
+    void loadFenPosition(const std::string& fenString);
     void clearBoard();
 
     // Static bit manipulation functions
@@ -105,7 +112,12 @@ public:
     U64 kingAttacks[64];
     // last pawn index is for color
     U64 pawnAttacks[64][2];
+    U64 enPassantSquares;
+    int halfmoveClock;
+    int moveNum;
 
+    bool whiteToPlay;
+    bool castleingRights[4];
     // attack masks to use with magic bitboards
 
 
@@ -127,6 +139,14 @@ private:
 
     //for calculating all attack-tables when class is created.
     void loadAttackTables();
+    //fen loading utility functions
+    int fenParsePieces(std::string& fen); // returns index number reached in fen-string
+    int fenParseTurn(int index, std::string& fen); // returns index number reached in fen-string
+    int fenParseCastleingRights(int index, std::string& fen); // returns index number reached in fen-string
+    int fenParseEnPassant(int index, std::string& fen); // returns index number reached in fen-string
+    int fenParseHalfmove(int index, std::string& fen); // returns index number reached in fen-string
+    void fenParseMoveNum(int index, std::string& fen); // returns index number reached in fen-string
+
     // generates attack masks for magic bitboard implementation
     void generateBishopAttackMasks();
     void generateRookAttackMasks();
@@ -135,10 +155,4 @@ private:
     U64 bishopAttacksOnTheFly(int square, U64 blockers);
 
     bool isKingInCheck();
-
-
-
-
-
-
 };
