@@ -12,8 +12,8 @@ int main(int argc, char* argv[])
     BitBoard board;
     board.loadStartingPosition();
 
-    Move move("e2","e4");
-    Move move2("e7","e5");
+    Move move("e2","e4", false);
+    Move move2("e7","e5", false);
 
     board.makeMove(move);
     BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
