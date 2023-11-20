@@ -10,7 +10,7 @@
 typedef uint64_t U64;
 
 // Enumeration for squares A1 = 0, H8 = 63
-enum enumSquareBB
+enum enumSquare
 {
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
@@ -21,7 +21,6 @@ enum enumSquareBB
     A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8,
 };
-
 enum castleingRight{
     whiteKingside,
     whiteQueenSide,
@@ -29,7 +28,10 @@ enum castleingRight{
     blackQueenside,
 };
 
-// Enumeration for all 14 piece sets
+enum castleingSide{
+    kingSide,
+    queenSide,
+};
 enum enumPieceBB
 {
     nWhite,
@@ -47,7 +49,6 @@ enum enumPieceBB
     nBlackQueen,
     nBlackKing,
 };
-
 enum color{
     white,
     black,
@@ -91,19 +92,36 @@ public:
     // Util functions
     U64 getPieceSet(enumPieceBB) const;
     int coordinateToIndex(std::string coordinate);
+    void undoMove();
+    std::list<Move> gameHistory;
+    std::list<Move> pseudoLegal;
+    std::list<Move> captures;
+    std::string indexToCoordinate(int);
+
+    // Move generation
+    void generateKnightMoves();
+    void generateBishopMoves();
+    void generateRookMoves();
+    void generateQueenMoves();
+    void generatePawnAdvances();
+    void generatePawnCaptures();
+    void generateKingMoves();
+    void generateCastles();
+    void gemerateEnPassant();
+
 
     // Position loading
     void clearBoard();
     void loadStartingPosition();
     void loadFenPosition(const std::string& fenString);
 
-    // attack getters
-    U64 getAttacks() const; // returns all possible attacks for color to move.
-    U64 getRookAttacks(int square, U64 position) const;
-    U64 getBishopAttacks(int square, U64 position) const;
-    U64 getKnightAttacks(int square);
-    U64 getPawnAttacks(int square, int color);
-    U64 getKingAttacks(int square);
+    // attack-map getters
+    U64 getAttacks(bool) const; // returns all possible attacks for color to move.
+    U64 getRookAttacks(int square) const;
+    U64 getBishopAttacks(int square) const;
+    U64 getKnightAttacks(int square) const;
+    U64 getPawnAttacks(int square) const;
+    U64 getKingAttacks(int square) const;
 
     // Bit manipulation functions
     static void setBit(U64&, int);
@@ -111,7 +129,6 @@ public:
     static void clearBit(U64&, int i);
     static int getLSB(const U64&);
     static int countBits(U64);
-    std::list<Move> gameHistory;
 
     // debug functions
     static void printBB(const U64& bb) ;
@@ -120,15 +137,15 @@ public:
 
 private:
     // bitboards containing current position
-    U64 pieceBB[14]{};
+    U64 pieceBB[14];
 
     // Arrays of all possible attacks (initialized by BitBoard constructor)
-    // rook and bishop moves stored by blocker patterns using magic number indexing
+    // rook and bishop 2nd index stores blocker patterns using magic number indexing.
+    U64 knightAttacks[64]{};
     U64 bishopAttackMask[64]{};
     U64 rookAttackMask[64]{};
     U64 bishopAttacks[64][512]{};
     U64 rookAttacks[64][4096]{};
-    U64 knightAttacks[64]{};
     U64 kingAttacks[64]{};
     U64 pawnAttacks[64][2]{}; // last pawn index is for color
 
@@ -136,7 +153,7 @@ private:
     U64 enPassantSquares{};
     int halfmoveClock{};
     int moveNum{};
-    bool whiteToPlay{};
+    bool whiteToMove{};
     bool castleingRights[4]{};
     bool KingInCheck{};
 
@@ -157,6 +174,7 @@ private:
     void fenParseMoveNum(int index, std::string& fen); // returns index number reached in fen-string
 
     // Move generation
-    std::vector<Move> pseudoLegal;
-    void undoMove(const Move&);
+    bool isCapture(int targetSquare) const;
+    void removeCastlingRight(castleingSide);
+
 };
