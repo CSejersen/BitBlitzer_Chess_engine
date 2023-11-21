@@ -14,7 +14,7 @@ enum enumMoveFlags{
     nBishopPromo,
     nRookPromo,
     nQueenPromo,
-    nKightPromoCapture,
+    nKnightPromoCapture,
     nBishopPromoCapture,
     hRookPromoCapture,
     nQueenPromoCapture,

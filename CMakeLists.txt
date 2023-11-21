@@ -20,6 +20,17 @@ add_executable(BBchess_engine main.cpp
         magics.h
         SDL_functions.cpp
         SDL_functions.h
+        fen_parser.cpp
+        fen_parser.h
+        AttackTableGenerator.cpp
+        AttackTableGenerator.h
+        game_state.cpp
+        game_state.h
+        bit_manipulation.h
+        bit_manipulation.cpp
+        board_constants.h
+        board_constants.cpp
+        move_generator.cpp
 )
 
 target_link_libraries(BBchess_engine ${SDL2_LIBRARY} )

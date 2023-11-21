@@ -5,18 +5,20 @@
 #include <string>
 #include <SDL.h>
 #include "SDL_functions.h"
+#include "move_generator.h"
 //#include <SDL_image.h>
 
 int main(int argc, char* argv[]){
 
-    // Init board
+    // Init _board
     BitBoard board;
     board.loadStartingPosition();
+    BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
     Move move(E2,E4, nDoublePawnPush);
-    Move move2(E7,E5, nDoublePawnPush);
-    Move move3(G1,F3, nQuietMoves);
-    Move move4(B8,C6, nQuietMoves);
-    Move move5(F1,C4,nQuietMoves);
+    Move move2(B8,C6, nQuietMoves);
+    Move move3(E4,E5, nQuietMoves);
+    Move move4(D7,D5, nDoublePawnPush);
+    Move move5(E5,D6,nEnPassantCapture);
     Move move6(G8,F6,nQuietMoves);
     Move move7(E2,E4,nQuietMoves);
     Move move8(D7,D6,nQuietMoves);
@@ -31,20 +33,21 @@ int main(int argc, char* argv[]){
     BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
     board.makeMove(move5);
     BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
-    board.makeMove(move6);
-    BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
-//    board.makeMove(move7);
-//    BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
-//    board.makeMove(move8);
-//    BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
+//    _board.makeMove(move6);
+//    BitBoard::printBB(_board.getPieceSet(nWhite) | _board.getPieceSet(nBlack));
+//    _board.makeMove(move7);
+//    BitBoard::printBB(_board.getPieceSet(nWhite) | _board.getPieceSet(nBlack));
+//    _board.makeMove(move8);
+//    BitBoard::printBB(_board.getPieceSet(nWhite) | _board.getPieceSet(nBlack));
 
     board.generateKnightMoves();
     board.generateBishopMoves();
     board.generateRookMoves();
     board.generateKingMoves();
     board.generateQueenMoves();
-    board.generatePawnAdvances();
+    board.generatePawnAdvancesWhite();
     board.generatePawnCaptures();
+    board.generateEnPassant();
 
     std::cout << "Moves: " << std::endl;
     for(auto & it : board.pseudoLegal){

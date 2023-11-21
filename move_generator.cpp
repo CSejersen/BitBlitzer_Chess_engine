@@ -2,11 +2,11 @@
 // Created by Christian Sejersen on 21/11/2023.
 //
 
-#include "MoveGenerator.h"
+#include "move_generator.h"
 
 void MoveGenerator::generateKnightMoves() {
     U64 knights = 0ULL;
-    if(whiteToMove)
+    if(getWhiteToMove())
         knights = getPieceSet(nWhiteKnight);
     else
         knights = getPieceSet(nBlackKnight);

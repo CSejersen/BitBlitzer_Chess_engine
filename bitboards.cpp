@@ -1,50 +1,7 @@
 #include "bitboards.h"
 #include "magics.h"
+#include "move_generator.h"
 
-// constants for using ranks and files with bitboards
-const U64 FILE_A = 0x8080808080808080ULL;
-const U64 FILE_B = 0x4040404040404040ULL;
-const U64 FILE_C = 0x2020202020202020ULL;
-const U64 FILE_D = 0x1010101010101010ULL;
-const U64 FILE_E = 0x0808080808080808ULL;
-const U64 FILE_F = 0x0404040404040404ULL;
-const U64 FILE_G = 0x0202020202020202ULL;
-const U64 FILE_H = 0x0101010101010101ULL;
-const U64 FILE_AB = FILE_A | FILE_B;
-const U64 FILE_GH = FILE_G | FILE_H;
-
-const U64 RANK_1 = 0xffULL;
-const U64 RANK_2 = 0xff00ULL;
-const U64 RANK_3 = 0xff0000ULL;
-const U64 RANK_4 = 0xff000000ULL;
-const U64 RANK_5 = 0xff00000000ULL;
-const U64 RANK_6 = 0xff0000000000ULL;
-const U64 RANK_7 = 0xff000000000000ULL;
-const U64 RANK_8 = 0xff00000000000000ULL;
-
-// rook relevant blocker bits
-int rookRelevantBits[64] = {
-        12, 11, 11, 11, 11, 11, 11, 12,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        12, 11, 11, 11, 11, 11, 11, 12
-};
-
-// bishop relevant blocker bits
-int bishopRelevantBits[64] = {
-        6, 5, 5, 5, 5, 5, 5, 6,
-        5, 5, 5, 5, 5, 5, 5, 5,
-        5, 5, 7, 7, 7, 7, 5, 5,
-        5, 5, 7, 9, 9, 7, 5, 5,
-        5, 5, 7, 9, 9, 7, 5, 5,
-        5, 5, 7, 7, 7, 7, 5, 5,
-        5, 5, 5, 5, 5, 5, 5, 5,
-        6, 5, 5, 5, 5, 5, 5, 6
-};
 
 // Bitboards constructor
 BitBoard::BitBoard(){
@@ -57,7 +14,7 @@ BitBoard::BitBoard(){
     // Calculate all attack-tables
     loadAttackTables();
 
-    // init starting position + game-state variables
+    // init starting position + game-_state variables
     loadStartingPosition();
 }
 
@@ -78,32 +35,7 @@ void BitBoard::placePiece(int pieceType, int square){
     }
 }
 
-// Bit manipulation functions
-void BitBoard::setBit(U64 &bb, int i){
-    (bb) |= (1ULL << i);
-}
-U64 BitBoard::getBit(U64 &bb, int i) {
-    return (bb) & (1ULL << i);
-}
-void BitBoard::clearBit(U64 &bb, int i) {
-    (bb) &= ~(1ULL << i);
-}
-int BitBoard::getLSB(const U64& bb) {
-    return (__builtin_ctzll(bb));
-}
-int BitBoard::countBits(U64 bb) {
-    // bit count
-    int count = 0;
-    // pop bits until bitboard is empty
-    while (bb) {
-        // increment count
-        count++;
-        // consecutively reset least significant 1st bit
-        bb &= bb - 1;
 
-    }
-    return count;
-}
 // prints a nice view of bitboard for a given piece.
 void BitBoard::printBB(const U64& bb) {
     U64 shiftMe = 1ULL;
@@ -323,278 +255,9 @@ void BitBoard::loadStartingPosition() {
     loadFenPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }
 
-void BitBoard::loadFenPosition(const std::string& fenString) {
-    clearBoard();
-    std::string fen = fenString;
-    int index = 0;
-    index = fenParsePieces(fen);
-    index = fenParseTurn(index, fen);
-    index = fenParseCastleingRights(index, fen);
-    index = fenParseEnPassant(index, fen);
-    index = fenParseHalfmove(index, fen);
-    fenParseMoveNum(index, fen);
 
-}
 
-int BitBoard::fenParsePieces(std::string& fen){
-    int currentSquare = A8;
-    int file = 0;
-    int rank = 7;
-    int index = 0;
-    bool quit = false;
 
-    for (int i = 0; i < fen.size() && !quit; ++i) {
-        currentSquare = (rank * 8) + file;
-        if (isdigit(fen[i])) {
-            int emptySquares = fen[i] - '0';  // Character to integer
-//            std::cout << "Adding " << emptySquares << " empty squares" << std::endl;
-            file += emptySquares; // Skipping empty squares
-//            std::cout << "file now equal to: " << file << std::endl;
-        } else {
-            switch (fen[i]) {
-                case 'P':
-//                    std::cout << "placing white pawn on: " << currentSquare << std::endl;
-                    placePiece(nWhitePawn,currentSquare);
-                    placePiece(nWhite, currentSquare);
-                    break;
-                case 'R':
-//                    std::cout << "placing white rook on: " << currentSquare << std::endl;
-                    placePiece(nWhiteRook,currentSquare);
-                    placePiece(nWhite, currentSquare);
-                    break;
-                case 'N':
-//                    std::cout << "placing white Knight on: " << currentSquare << std::endl;
-                    placePiece(nWhiteKnight,currentSquare);
-                    placePiece(nWhite, currentSquare);
-                    break;
-                case 'B':
-//                    std::cout << "placing white Bishop on: " << currentSquare << std::endl;
-                    placePiece(nWhiteBishop,currentSquare);
-                    placePiece(nWhite, currentSquare);
-                    break;
-                case 'Q':
-//                    std::cout << "placing white Queen on: " << currentSquare << std::endl;
-                    placePiece(nWhiteQueen,currentSquare);
-                    placePiece(nWhite, currentSquare);
-                    break;
-                case 'K':
-//                    std::cout << "placing white King on: " << currentSquare << std::endl;
-                    placePiece(nWhiteKing,currentSquare);
-                    placePiece(nWhite, currentSquare);
-                    break;
-
-                case 'p':
-//                    std::cout << "placing black pawn on: " << currentSquare << std::endl;
-                    placePiece(nBlackPawn,currentSquare);
-                    placePiece(nBlack, currentSquare);
-                    break;
-                case 'r':
-//                    std::cout << "placing black Rook on: " << currentSquare << std::endl;
-                    placePiece(nBlackRook,currentSquare);
-                    placePiece(nBlack, currentSquare);
-                    break;
-                case 'n':
-//                    std::cout << "placing black Knight on: " << currentSquare << std::endl;
-                    placePiece(nBlackKnight,currentSquare);
-                    placePiece(nBlack, currentSquare);
-                    break;
-                case 'b':
-//                    std::cout << "placing black Bishop on: " << currentSquare << std::endl;
-                    placePiece(nBlackBishop,currentSquare);
-                    placePiece(nBlack, currentSquare);
-                    break;
-                case 'q':
-//                    std::cout << "placing black Queen on: " << currentSquare << std::endl;
-                    placePiece(nBlackQueen,currentSquare);
-                    placePiece(nBlack, currentSquare);
-                    break;
-                case 'k':
-//                    std::cout << "placing black King on: " << currentSquare << std::endl;
-                    placePiece(nBlackKing,currentSquare);
-                    placePiece(nBlack, currentSquare);
-                    break;
-
-                case '/':
-                    if(!file % 7 == 0){
-//                        std::cout << "true" << std::endl;
-                        rank --;
-                        file = -1;
-//                        std::cout << "rank now equal to: " << rank << std::endl;
-                        break;
-                    }
-                    else{
-                        throw std::invalid_argument("invalid fen string");
-                    }
-                case ' ':
-                    quit = true;
-
-                default:
-                    break;
-            }
-            file += 1;
-        }
-        index += 1;
-    }
-    return index;
-}
-
-int BitBoard::fenParseTurn(int index, std::string& fen){
-    if(fen[index] == 'w'){
-        whiteToMove = true;
-    }
-    else{
-        whiteToMove = false;
-    }
-    return index += 2;
-}
-
-int BitBoard::fenParseCastleingRights(int index, std::string& fen) {
-    int indexTracker = index;
-    bool quit = false;
-    // reset castleing rights
-    for(bool & castleingRight : castleingRights) {
-        castleingRight = false;
-    }
-
-    for(int i = index; i < fen.size() && !quit; i++) {
-        switch (fen[i]) {
-            case 'K':
-                castleingRights[whiteKingside] = true;
-                break;
-
-            case 'Q':
-                castleingRights[whiteQueenSide] = true;
-                break;
-
-            case 'k':
-                castleingRights[blackKingside] = true;
-                break;
-
-            case 'q':
-                castleingRights[blackQueenside] = true;
-                break;
-
-            case '-':
-                break;
-
-            case ' ':
-                quit = true;
-                break;
-        }
-        indexTracker += 1;
-    }
-    return indexTracker;
-}
-
-int BitBoard::fenParseEnPassant(int index, std::string& fen) {
-    int rank = 0;
-    int file = 0;
-    bool quit = false;
-    bool enPassant = true;
-    int indexTracker = index;
-
-    for(int i = index; i <= fen.size() && !quit; i++){
-        switch (fen[i]) {
-            case 'a':
-                file = 0;
-                break;
-            case 'b':
-                file = 1;
-                break;
-            case 'c':
-                file = 2;
-                break;
-            case 'd':
-                file = 3;
-                break;
-            case 'e':
-                file = 4;
-                break;
-            case 'f':
-                file = 5;
-                break;
-            case 'g':
-                file = 6;
-                break;
-            case 'h':
-                file = 7;
-                break;
-            case '1':
-                rank = 0;
-                break;
-            case '2':
-                rank = 1;
-                break;
-            case '3':
-                rank = 2;
-                break;
-            case '4':
-                rank = 3;
-                break;
-            case '5':
-                rank = 4;
-                break;
-            case '6':
-                rank = 5;
-                break;
-            case '7':
-                rank = 6;
-                break;
-            case '8':
-                rank = 7;
-                break;
-            case '-':
-                enPassant = false;
-                break;
-            case ' ':
-                quit = true;
-                break;
-
-            default:
-                throw std::invalid_argument("invalid FEN string En-passant error");
-        }
-        indexTracker += 1;
-
-    }
-    if(enPassant){
-        int square = (rank*8) + file;
-        enPassantSquares |= 1ULL << square;
-    }
-    return indexTracker;
-}
-
-int BitBoard::fenParseHalfmove(int index, std::string &fen) {
-    std::string halfmoves;
-    int indexTracker = index;
-    bool quit = false;
-
-    for(int i = index; i < fen.size() && !quit; i++){
-        if(isdigit(fen[i])){
-            halfmoves += fen[i];
-        }
-        else{
-            quit = true;
-        }
-        indexTracker ++;
-    }
-    halfmoveClock = stoi(halfmoves);
-    return indexTracker;
-}
-
-void BitBoard::fenParseMoveNum(int index, std::string &fen) {
-    std::string moves;
-    bool quit = false;
-
-    for(int i = index; i < fen.size() && !quit; i++){
-        if(isdigit(fen[i])){
-            moves += fen[i];
-        }
-        else{
-            quit = true;
-        }
-    }
-    moveNum = stoi(moves);
-}
 
 U64 BitBoard::getAttacks(bool whitePieces) const {
     U64 attacks = 0ULL;
@@ -741,10 +404,11 @@ void BitBoard::makeMove(const Move& move) {
     int targetSquare = move.getTargetSquare();
     int flag = move.getFlag();
     int pieceToMove = 0;
+    int pieceToCapture = 0;
 
     // Looping over all pieceTypes to find pieceToMove.
     for(int pieceType = nWhitePawn; pieceType <= nBlackKing; pieceType++){
-        // skipping board with all black pieces (all white board already skipped by starting loop at nWhitePawn);
+        // skipping _board with all black pieces (all white _board already skipped by starting loop at nWhitePawn);
         if(pieceType == nBlack){
             continue;
         }
@@ -754,21 +418,10 @@ void BitBoard::makeMove(const Move& move) {
         }
 
     }
-    // checking if starting square is valid
-    if(whiteToMove && (pieceToMove > 7)){
-        throw std::invalid_argument("Trying to move black piece on whites turn!");
-    }
-    if(!whiteToMove && (pieceToMove < 7)){
-        throw std::invalid_argument("Trying to move white piece on blacks turn!");
-    }
-    if(!pieceToMove){
-        throw std::invalid_argument("No piece on starting square!");
-    }
 
-    // making move on the board
+    // making move on the _board
     pieceBB[pieceToMove] &= ~(1ULL << startingSquare); // removing piece from starting square
     placePiece(pieceToMove,targetSquare);
-
     if(whiteToMove){
         pieceBB[nWhite] &= ~(1ULL << startingSquare);
     }
@@ -776,15 +429,64 @@ void BitBoard::makeMove(const Move& move) {
         pieceBB[nBlack] &= ~(1ULL << startingSquare);
     }
 
+    // Checking for capture
+    if(flag == nCapture || flag == hRookPromoCapture || flag == nBishopPromoCapture || flag == nKnightPromoCapture || flag == nQueenPromoCapture) {
+
+        // searching for piece to capture
+        if (whiteToMove) {
+            for (int piece = nBlackPawn; piece <= nBlackKing; piece++) {
+                if (pieceBB[piece] & 1ULL << targetSquare) {
+                    pieceToCapture = piece;
+                    break;
+                }
+            }
+        } else {
+            for (int piece = nWhitePawn; piece <= nWhiteKing; piece++) {
+                if (pieceBB[piece] & 1ULL << targetSquare) {
+                    pieceToCapture = piece;
+                    break;
+
+                }
+            }
+
+        }
+        // removing captured piece from _board
+        pieceBB[pieceToCapture] &= ~1ULL << targetSquare;
+
+        // removing from nWhite and nBlack pieceBB's
+        if(whiteToMove)
+            pieceBB[nBlack] &= ~1ULL << targetSquare;
+        else
+            pieceBB[nWhite] &= ~1ULL << targetSquare;
+    }
+
+    // Checking for En Passant
+    if(flag == nEnPassantCapture) {
+        // searching for piece to capture
+        if (whiteToMove) {
+            pieceToCapture = getLSB(getPieceSet(nBlackPawn) & enPassantSquare >> 8);
+            // removing captured piece from _board
+            pieceBB[nBlackPawn] &= ~(1ULL << pieceToCapture);
+            pieceBB[nBlack] &= ~(1ULL << pieceToCapture);
+        } else {
+            pieceToCapture = getLSB(getPieceSet(nWhitePawn) & enPassantSquare << 8);
+            // removing captured piece from _board
+            pieceBB[nWhitePawn] &= ~1ULL << pieceToCapture;
+            pieceBB[nWhite] &= ~1ULL << pieceToCapture;
+        }
+    }
+
+    //resetting En-Passant square
+    enPassantSquare = 0ULL;
     if(flag == nDoublePawnPush){
         std::cout << "Double pawn push! " << std::endl;
+        if(whiteToMove)
+            enPassantSquare = 1ULL << (targetSquare - 8);
+        else
+            enPassantSquare = 1ULL << (targetSquare + 8);
         std::cout << indexToCoordinate(startingSquare) << " - " << indexToCoordinate(targetSquare) << std::endl;
     }
 
-    if(flag == nQuietMoves){
-        std::cout << "Quiet Move " << std::endl;
-        std::cout << indexToCoordinate(startingSquare) << " - " << indexToCoordinate(targetSquare) << std::endl;
-    }
 
     whiteToMove = !whiteToMove;
     gameHistory.emplace_back(move);
@@ -881,7 +583,7 @@ void BitBoard::undoMove() {
         }
     }
 
-    // Undoing move on the board
+    // Undoing move on the _board
     pieceBB[pieceToMove] &= (~1ULL << targetSquare);
     placePiece(pieceToMove,startSquare);
 
@@ -896,294 +598,6 @@ void BitBoard::undoMove() {
     it = gameHistory.erase(it);
 };
 
-void BitBoard::generateKnightMoves() {
-    U64 knights = 0ULL;
-    if(whiteToMove)
-        knights = getPieceSet(nWhiteKnight);
-    else
-        knights = getPieceSet(nBlackKnight);
-
-    while(knights){
-        U16 startSquare = getLSB(knights);
-        clearBit(knights,startSquare);
-        U64 attacks = getKnightAttacks(startSquare);
-        while(attacks){
-            U16 targetSquare = getLSB(attacks);
-            clearBit(attacks,targetSquare);
-            U16 flags = 0;
-
-                if(isCapture(targetSquare)) {
-                    flags = nCapture;
-                    captures.emplace_back(startSquare,targetSquare,flags);
-                }
-                else
-                    pseudoLegal.emplace_back(startSquare,targetSquare,flags);
-            }
-        }
-    }
-void BitBoard::generateBishopMoves() {
-    U64 bishops = 0ULL;
-    if(whiteToMove)
-        bishops = getPieceSet(nWhiteBishop);
-    else
-        bishops = getPieceSet(nBlackBishop);
-
-    while(bishops){
-        int startSquare = getLSB(bishops);
-        clearBit(bishops,startSquare);
-        U64 attacks = getBishopAttacks(startSquare);
-        U16 flags = 0;
-        while(attacks){
-            int targetSquare = getLSB(attacks);
-            clearBit(attacks,targetSquare);
-            if(isCapture(targetSquare)){
-                flags = nCapture;
-                captures.emplace_back(startSquare,targetSquare,flags);
-
-            }
-            else{
-                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
-            }
-
-
-        }
-
-    }
-}
-
-void BitBoard::generateRookMoves() {
-    U64 rooks = 0ULL;
-    if(whiteToMove)
-        rooks = getPieceSet(nWhiteRook);
-    else
-        rooks = getPieceSet(nBlackRook);
-
-    while(rooks){
-        int startSquare = getLSB(rooks);
-        clearBit(rooks, startSquare);
-        U64 attacks = getRookAttacks(startSquare);
-        U16 flags = 0;
-        while(attacks){
-            int targetSquare = getLSB(attacks);
-            clearBit(attacks,targetSquare);
-            if(isCapture(targetSquare)){
-                flags = nCapture;
-                captures.emplace_back(startSquare,targetSquare,flags);
-
-            }
-            else{
-                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
-            }
-
-
-        }
-
-    }
-
-}
-
-void BitBoard::generateKingMoves() {
-    U64 king = 0ULL;
-    if (whiteToMove)
-        king = getPieceSet(nWhiteKing);
-    else
-        king = getPieceSet(nBlackKing);
-    U16 startSquare = getLSB(king);
-    U64 attacks = getKingAttacks(startSquare);
-
-    // adding castling squares
-    U64 whiteKingSideSquares = 1ULL << G1 | 1ULL << F1;
-    U64 whiteQueenSideSquares = 1ULL << C1 | 1ULL << D1;
-    U64 blackKingSideSquares = 1ULL << G8 | 1ULL << F8;
-    U64 blackQueenSideSquares = 1ULL << C8 | 1ULL << D8;
-
-    U64 allPieces = getPieceSet(nWhite) & getPieceSet(nBlack);
-
-    if (whiteToMove && startSquare == E1 && whiteKingSideSquares & ~allPieces && castleingRights[whiteKingside]) // DOES NOT WORK! can prob castle with piece on F1 and empty square G1
-        attacks |=  (1ULL << G1) & ~allPieces;
-
-    else if (whiteToMove && startSquare == E1 && whiteQueenSideSquares & ~allPieces && castleingRights[whiteQueenSide])
-        attacks |=  (1ULL << C1) & ~allPieces;
-
-    else if (!whiteToMove && startSquare == E8 && blackKingSideSquares & ~allPieces && castleingRights[blackKingside])
-        attacks += (1ULL << G8) & ~allPieces;
-
-    else if (!whiteToMove && startSquare == E8 && blackQueenSideSquares & ~allPieces && castleingRights[blackQueenside])
-    attacks += (1ULL << C8) & ~getPieceSet(nBlack) | (1ULL << C8) & ~getPieceSet(nBlack);
-
-
-    U16 flags = 0;
-    while (attacks) {
-        int targetSquare = getLSB(attacks);
-        clearBit(attacks, targetSquare);
-
-        if (startSquare == E1 && targetSquare == G1) {
-            if (1ULL << F1 & ~allPieces)
-                flags = nKingCastle;
-        }
-        else if (startSquare == E1 && targetSquare == C1){
-            flags = nQueenCastle;
-        }
-        else if (startSquare == E8 && targetSquare == G8){
-            flags = nKingCastle;
-        }
-        else if (startSquare == E8 && targetSquare == C8){
-            flags = nQueenCastle;
-        }
-
-
-        if (isCapture(targetSquare)) {
-            flags = nCapture;
-            captures.emplace_back(startSquare, targetSquare, flags);
-        }
-        else {
-            pseudoLegal.emplace_back(startSquare, targetSquare, flags);
-
-        }
-    }
-}
-
-
-void BitBoard::generateQueenMoves() {
-    U64 queens = 0ULL;
-    if(whiteToMove)
-        queens = getPieceSet(nWhiteQueen);
-    else
-        queens = getPieceSet(nBlackQueen);
-
-    while(queens){
-        int startSquare = getLSB(queens);
-        clearBit(queens, startSquare);
-        U64 straightAttacks = getRookAttacks(startSquare);
-        U64 diagonalAttacks = getBishopAttacks(startSquare);
-        U64 attacks = straightAttacks | diagonalAttacks;
-        U16 flags = 0;
-        while(attacks){
-            int targetSquare = getLSB(attacks);
-            clearBit(attacks,targetSquare);
-            if(isCapture(targetSquare)){
-                flags = nCapture;
-                captures.emplace_back(startSquare,targetSquare,flags);
-
-            }
-            else{
-                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
-            }
-
-
-        }
-
-    }
-
-}
-
-void BitBoard::generatePawnAdvances() {
-    U64 pawns = 0ULL;
-    U64 move = 0ULL;
-    U16 flags = 0;
-    U16 targetSquare;
-    if(whiteToMove)
-        pawns = getPieceSet(nWhitePawn);
-    else
-        pawns = getPieceSet(nBlackPawn);
-
-    while(pawns){
-        int startSquare = getLSB(pawns);
-        U64 startSquareMask = 1ULL << startSquare;
-        clearBit(pawns,startSquare);
-
-        // adding single advances white
-        if(whiteToMove){
-            move = (startSquareMask << 8) & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
-            if(move){
-                targetSquare = getLSB(move);
-                flags = nQuietMoves;
-                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
-            }
-            else
-                continue;
-        }
-        // adding single advances black
-        else{
-            move = (startSquare >> 8) & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
-            if(move){
-                targetSquare = getLSB(move);
-                flags = nQuietMoves;
-                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
-            }
-            else
-                continue;
-        }
-
-        // getting double pawn advances for white
-        if(whiteToMove && (startSquareMask & RANK_2)){
-            move = startSquareMask << 16 & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
-            if(move){
-                targetSquare = getLSB(move);
-                flags = nDoublePawnPush;
-                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
-            }
-        }
-        // getting double pawn advances for white
-        if(!whiteToMove && (startSquareMask & RANK_7)){
-            move = startSquareMask >> 16 & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
-            if(move){
-                targetSquare = getLSB(move);
-                flags = nDoublePawnPush;
-                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
-            }
-        }
-    }
-
-}
-
-void BitBoard::generatePawnCaptures() {
-    U64 pawns = 0ULL;
-    U16 flags = 0;
-    if(whiteToMove)
-        pawns = getPieceSet(nWhitePawn);
-    else
-        pawns = getPieceSet(nBlackPawn);
-
-    while(pawns){
-        int startSquare = getLSB(pawns);
-        clearBit(pawns,startSquare);
-
-        U64 attacks = getPawnAttacks(startSquare);
-        while(attacks){
-            int targetSquare = getLSB(attacks);
-            clearBit(attacks,targetSquare);
-            if(isCapture(targetSquare)){
-                flags = nCapture;
-                captures.emplace_back(startSquare,targetSquare,flags);
-            }
-        }
-    }
-}
-
-void BitBoard::generateEnPassant(){
-    U64 pawns = 0ULL;
-    U16 flags = 0;
-    if(whiteToMove)
-        pawns = getPieceSet(nWhitePawn);
-    else
-        pawns = getPieceSet(nBlackPawn);
-
-    while(pawns){
-        int startSquare = getLSB(pawns);
-        clearBit(pawns,startSquare);
-
-        U64 attacks = getPawnAttacks(startSquare);
-        while(attacks){
-            int targetSquare = getLSB(attacks);
-            clearBit(attacks,targetSquare);
-            if( 1ULL << targetSquare & enPassantSquares){
-                flags = nEnPassantCapture;
-                captures.emplace_back(startSquare,targetSquare,flags);
-            }
-        }
-    }
-}
 
 void BitBoard::removeCastlingRight(castleingSide side) {
     if(whiteToMove)
@@ -1238,4 +652,18 @@ bool BitBoard::isCapture(int targetSquare) const{
          return true;
      else
          return false;
+}
+
+bool BitBoard::getWhiteToMove() {
+    if (whiteToMove)
+        return true;
+    else
+        return false;
+}
+
+void BitBoard::setWhiteToMove(bool yes) {
+    if(yes)
+        whiteToMove = true;
+    else
+        whiteToMove = false;
 }
