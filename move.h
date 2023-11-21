@@ -1,7 +1,5 @@
 #pragma once
-#include <string>
-
-typedef uint16_t U16;
+#include "board_constants.h"
 
 enum enumMoveFlags{
     nQuietMoves,

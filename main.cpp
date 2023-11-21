@@ -1,18 +1,26 @@
 #include <iostream>
 #include "bitboards.h"
+#include "game_state.h"
 #include "move.h"
-#include <iostream>
-#include <string>
-#include <SDL.h>
-#include "SDL_functions.h"
 #include "move_generator.h"
+#include "attack_tables.h"
+#include "game_state.h"
+#include "fen_parser.h"
+
+
 //#include <SDL_image.h>
 
 int main(int argc, char* argv[]){
 
     // Init _board
-    BitBoard board;
-    board.loadStartingPosition();
+    GameState state;
+    BitBoard board(&state);
+    AttackTables atkTables(&board,&state);
+    MoveGenerator moveGenerator(&board, &state, &atkTables);
+    FenParser fenParser(&board, &state);
+
+    fenParser.loadStartingPosition();
+
     BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
     Move move(E2,E4, nDoublePawnPush);
     Move move2(B8,C6, nQuietMoves);
@@ -40,22 +48,22 @@ int main(int argc, char* argv[]){
 //    _board.makeMove(move8);
 //    BitBoard::printBB(_board.getPieceSet(nWhite) | _board.getPieceSet(nBlack));
 
-    board.generateKnightMoves();
-    board.generateBishopMoves();
-    board.generateRookMoves();
-    board.generateKingMoves();
-    board.generateQueenMoves();
-    board.generatePawnAdvancesWhite();
-    board.generatePawnCaptures();
-    board.generateEnPassant();
+    moveGenerator.generateKnightMoves();
+    moveGenerator.generateBishopMoves();
+    moveGenerator.generateRookMoves();
+    moveGenerator.generateKingMoves();
+    moveGenerator.generateQueenMoves();
+    moveGenerator.generatePawnAdvancesWhite();
+    moveGenerator.generatePawnCaptures();
+    moveGenerator.generateEnPassant();
 
     std::cout << "Moves: " << std::endl;
-    for(auto & it : board.pseudoLegal){
+    for(auto & it : moveGenerator.pseudoLegal){
         std::cout << board.indexToCoordinate(it.getStartSquare()) << "-" << board.indexToCoordinate(it.getTargetSquare()) << std::endl;
     }
 
     std::cout << "captures: " << std::endl;
-    for(auto & it : board.captures){
+    for(auto & it : moveGenerator.captures){
         std::cout << board.indexToCoordinate(it.getStartSquare()) << "-" << board.indexToCoordinate(it.getTargetSquare()) << std::endl;
     }
 }

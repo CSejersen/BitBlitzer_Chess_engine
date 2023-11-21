@@ -1,10 +1,4 @@
-//
-// Created by Christian Sejersen on 21/11/2023.
-//
 #include "fen_parser.h"
-#include "bitboards.h"
-#include <string>
-#include <iostream>
 FenParser::FenParser(BitBoard* board,GameState* state) {
     _board = board;
     _state = state;
@@ -280,3 +274,8 @@ void FenParser::loadFenPosition(const std::string& fenString) {
     index = fenParseHalfmove(index, fen);
     fenParseMoveNum(index, fen);
 }
+
+void FenParser::loadStartingPosition() {
+    loadFenPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+}
+

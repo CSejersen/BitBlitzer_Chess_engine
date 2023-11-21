@@ -22,8 +22,8 @@ add_executable(BBchess_engine main.cpp
         SDL_functions.h
         fen_parser.cpp
         fen_parser.h
-        AttackTableGenerator.cpp
-        AttackTableGenerator.h
+        attack_tables.cpp
+        attack_tables.h
         game_state.cpp
         game_state.h
         bit_manipulation.h

@@ -1,20 +1,18 @@
-//
-// Created by Christian Sejersen on 21/11/2023.
-//
 #pragma once
 #include "bitboards.h"
+#include "game_state.h"
+#include "attack_tables.h"
+#include "bit_manipulation.h"
+#include "move.h"
 
-enum color{
-    white,
-    black,
-};
 
-class move_generator {
+class MoveGenerator {
 
 public:
-    move_generator(&BitBoard);
-
-    BitBoard* board;
+    MoveGenerator(BitBoard* board, GameState* state, AttackTables* attackTables);
+    BitBoard* _board;
+    GameState* _state;
+    AttackTables* _atkTables;
 
     void generateMoves();
     void generateKnightMoves();
@@ -27,10 +25,11 @@ public:
     void generatePawnCaptures();
     void generateEnPassant();
     void generateCastles();
-private:
-    bool isCapture(int targetSquare) const;
     std::list<Move> pseudoLegal;
     std::list<Move> captures;
+
+private:
+    bool isCapture(int targetSquare) const;
 };
 
 

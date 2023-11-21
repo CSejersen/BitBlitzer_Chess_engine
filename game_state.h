@@ -2,7 +2,9 @@
 // Created by Christian Sejersen on 21/11/2023.
 //
 #pragma once
-#include "bitboards.h"
+#include "move.h"
+#include "board_constants.h"
+#include <list>
 
 enum nCastleingRight{
     whiteKingside,
@@ -13,13 +15,21 @@ enum nCastleingRight{
 
 class GameState {
 public:
-    bool getWhiteToMove();
+    GameState();
+    bool getWhiteToMove() const;
     void setWhiteToMove(bool);
     void resetCastlingRights();
-    void setCastlingRight(nCastleingRight enumIndex);
+    void setCastlingRight(nCastleingRight index);
+    bool getCastlingRight(nCastleingRight index) const;
+    U64 getEnPassantSquare() const;
     void setEnPassantSquare(int square);
+    void resetEnPassantSquare();
     void setHalfMoveClock(int);
     void setMoveNum(int);
+    void passTurn();
+    void addMoveToHistory(Move);
+    Move getLastMove();
+    void deleteLastMove();
 
 
 private:

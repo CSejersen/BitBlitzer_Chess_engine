@@ -1,3 +1,5 @@
+#include "board_constants.h"
+
 // Files and ranks described by hexadecimal numbers.
 const U64 FILE_A = 0x8080808080808080ULL;
 const U64 FILE_B = 0x4040404040404040ULL;
@@ -20,7 +22,7 @@ const U64 RANK_7 = 0xff000000000000ULL;
 const U64 RANK_8 = 0xff00000000000000ULL;
 
 // rook relevant blocker bits
-int rookRelevantBits[64] = {
+const int rookRelevantBits[64] = {
         12, 11, 11, 11, 11, 11, 11, 12,
         11, 10, 10, 10, 10, 10, 10, 11,
         11, 10, 10, 10, 10, 10, 10, 11,
@@ -32,7 +34,7 @@ int rookRelevantBits[64] = {
 };
 
 // bishop relevant blocker bits
-int bishopRelevantBits[64] = {
+const int bishopRelevantBits[64] = {
         6, 5, 5, 5, 5, 5, 5, 6,
         5, 5, 5, 5, 5, 5, 5, 5,
         5, 5, 7, 7, 7, 7, 5, 5,
@@ -43,3 +45,7 @@ int bishopRelevantBits[64] = {
         6, 5, 5, 5, 5, 5, 5, 6
 };
 
+enum color{
+    white,
+    black,
+};

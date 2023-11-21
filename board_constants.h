@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+typedef uint16_t U16;
 
 typedef uint64_t U64;
 

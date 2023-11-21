@@ -3,18 +3,22 @@
 //
 
 #include "move_generator.h"
-
+MoveGenerator::MoveGenerator(BitBoard *board, GameState *state, AttackTables *attackTables) {
+    _board = board;
+    _state = state;
+    _atkTables = attackTables;
+}
 void MoveGenerator::generateKnightMoves() {
     U64 knights = 0ULL;
-    if(getWhiteToMove())
-        knights = getPieceSet(nWhiteKnight);
+    if(_state->getWhiteToMove())
+        knights = _board->getPieceSet(nWhiteKnight);
     else
-        knights = getPieceSet(nBlackKnight);
+        knights = _board->getPieceSet(nBlackKnight);
 
     while(knights){
         U16 startSquare = getLSB(knights);
         clearBit(knights,startSquare);
-        U64 attacks = getKnightAttacks(startSquare);
+        U64 attacks = _atkTables->getKnightAttacks(startSquare);
         while(attacks){
             U16 targetSquare = getLSB(attacks);
             clearBit(attacks,targetSquare);
@@ -32,15 +36,15 @@ void MoveGenerator::generateKnightMoves() {
 
 void MoveGenerator::generateBishopMoves() {
     U64 bishops = 0ULL;
-    if(whiteToMove)
-        bishops = getPieceSet(nWhiteBishop);
+    if(_state->getWhiteToMove())
+        bishops = _board->getPieceSet(nWhiteBishop);
     else
-        bishops = getPieceSet(nBlackBishop);
+        bishops = _board->getPieceSet(nBlackBishop);
 
     while(bishops){
         int startSquare = getLSB(bishops);
         clearBit(bishops,startSquare);
-        U64 attacks = getBishopAttacks(startSquare);
+        U64 attacks = _atkTables->getBishopAttacks(startSquare);
         U16 flags = 0;
         while(attacks){
             int targetSquare = getLSB(attacks);
@@ -62,15 +66,15 @@ void MoveGenerator::generateBishopMoves() {
 
 void MoveGenerator::generateRookMoves() {
     U64 rooks = 0ULL;
-    if(whiteToMove)
-        rooks = getPieceSet(nWhiteRook);
+    if(_state->getWhiteToMove())
+        rooks = _board->getPieceSet(nWhiteRook);
     else
-        rooks = getPieceSet(nBlackRook);
+        rooks = _board->getPieceSet(nBlackRook);
 
     while(rooks){
         int startSquare = getLSB(rooks);
         clearBit(rooks, startSquare);
-        U64 attacks = getRookAttacks(startSquare);
+        U64 attacks = _atkTables->getRookAttacks(startSquare);
         U16 flags = 0;
         while(attacks){
             int targetSquare = getLSB(attacks);
@@ -94,13 +98,13 @@ void MoveGenerator::generateRookMoves() {
 void MoveGenerator::generateKingMoves() {
     U64 king = 0ULL;
     // getting king of player to move
-    if (whiteToMove)
-        king = getPieceSet(nWhiteKing);
+    if (_state->getWhiteToMove())
+        king = _board->getPieceSet(nWhiteKing);
     else
-        king = getPieceSet(nBlackKing);
+        king = _board->getPieceSet(nBlackKing);
 
     U16 startSquare = getLSB(king);
-    U64 attacks = getKingAttacks(startSquare);
+    U64 attacks = _atkTables->getKingAttacks(startSquare);
     U16 flags = 0;
 
     while (attacks) {
@@ -119,16 +123,16 @@ void MoveGenerator::generateKingMoves() {
 
 void MoveGenerator::generateQueenMoves() {
     U64 queens = 0ULL;
-    if(whiteToMove)
-        queens = getPieceSet(nWhiteQueen);
+    if(_state->getWhiteToMove())
+        queens = _board->getPieceSet(nWhiteQueen);
     else
-        queens = getPieceSet(nBlackQueen);
+        queens = _board->getPieceSet(nBlackQueen);
 
     while(queens){
         int startSquare = getLSB(queens);
         clearBit(queens, startSquare);
-        U64 straightAttacks = getRookAttacks(startSquare);
-        U64 diagonalAttacks = getBishopAttacks(startSquare);
+        U64 straightAttacks = _atkTables->getRookAttacks(startSquare);
+        U64 diagonalAttacks = _atkTables->getBishopAttacks(startSquare);
         U64 attacks = straightAttacks | diagonalAttacks;
         U16 flags = 0;
         while(attacks){
@@ -142,55 +146,15 @@ void MoveGenerator::generateQueenMoves() {
             else{
                 pseudoLegal.emplace_back(startSquare,targetSquare,flags);
             }
-
-
         }
-
     }
-
 }
 
 void MoveGenerator::generatePawnAdvancesWhite() {
     U64 move = 0ULL;
     U16 flags = 0;
     U16 targetSquare;
-    U64 pawns = getPieceSet(nWhitePawn);
-
-    while(pawns){
-        int startSquare = getLSB(pawns);
-        U64 startSquareMask = 1ULL << startSquare;
-        clearBit(pawns,startSquare);
-
-        // adding single advances white
-        move = (startSquareMask << 8) & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
-        if(move){
-            targetSquare = getLSB(move);
-            flags = nQuietMoves;
-            pseudoLegal.emplace_back(startSquare,targetSquare,flags);
-        }
-        else
-            continue;
-
-
-        // getting double pawn advances for white
-        if(startSquareMask & RANK_2){
-            move = startSquareMask << 16 & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
-            if(move){
-                targetSquare = getLSB(move);
-                flags = nDoublePawnPush;
-                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
-            }
-        }
-
-    }
-
-}
-
-void MoveGenerator::generatePawnAdvancesBlack() {
-    U64 move = 0ULL;
-    U16 flags = 0;
-    U16 targetSquare;
-    U64 pawns = getPieceSet(nBlackPawn);
+    U64 pawns = _board->getPieceSet(nWhitePawn);
 
     while(pawns){
         int startSquare = getLSB(pawns);
@@ -198,7 +162,7 @@ void MoveGenerator::generatePawnAdvancesBlack() {
         clearBit(pawns,startSquare);
 
         // adding single advances
-        move = (startSquareMask >> 8) & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
+        move = (startSquareMask << 8) & ~(_board->getPieceSet(nBlack) | _board->getPieceSet(nWhite));
         if(move){
             targetSquare = getLSB(move);
             flags = nQuietMoves;
@@ -207,10 +171,42 @@ void MoveGenerator::generatePawnAdvancesBlack() {
         else
             continue;
 
+        // getting double pawn advances
+        if(startSquareMask & RANK_2){
+            move = startSquareMask << 16 & ~(_board->getPieceSet(nBlack) | _board->getPieceSet(nWhite));
+            if(move){
+                targetSquare = getLSB(move);
+                flags = nDoublePawnPush;
+                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
+            }
+        }
+    }
+}
+
+void MoveGenerator::generatePawnAdvancesBlack() {
+    U64 move = 0ULL;
+    U16 flags = 0;
+    U16 targetSquare;
+    U64 pawns = _board->getPieceSet(nBlackPawn);
+
+    while(pawns){
+        int startSquare = getLSB(pawns);
+        U64 startSquareMask = 1ULL << startSquare;
+        clearBit(pawns,startSquare);
+
+        // adding single advances
+        move = (startSquareMask >> 8) & ~(_board->getPieceSet(nBlack) | _board->getPieceSet(nWhite));
+        if(move){
+            targetSquare = getLSB(move);
+            flags = nQuietMoves;
+            pseudoLegal.emplace_back(startSquare,targetSquare,flags);
+        }
+        else
+            continue;
 
         // getting double pawn advances for white
         if(startSquareMask & RANK_7){
-            move = startSquareMask >> 16 & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
+            move = startSquareMask >> 16 & ~(_board->getPieceSet(nBlack) | _board->getPieceSet(nWhite));
             if(move){
                 targetSquare = getLSB(move);
                 flags = nDoublePawnPush;
@@ -225,16 +221,16 @@ void MoveGenerator::generatePawnAdvancesBlack() {
 void MoveGenerator::generatePawnCaptures() {
     U64 pawns = 0ULL;
     U16 flags = 0;
-    if(whiteToMove)
-        pawns = getPieceSet(nWhitePawn);
+    if(_state->getWhiteToMove())
+        pawns = _board->getPieceSet(nWhitePawn);
     else
-        pawns = getPieceSet(nBlackPawn);
+        pawns = _board->getPieceSet(nBlackPawn);
 
     while(pawns){
         int startSquare = getLSB(pawns);
         clearBit(pawns,startSquare);
 
-        U64 attacks = getPawnAttacks(startSquare);
+        U64 attacks = _atkTables->getPawnAttacks(startSquare);
         while(attacks){
             int targetSquare = getLSB(attacks);
             clearBit(attacks,targetSquare);
@@ -249,20 +245,20 @@ void MoveGenerator::generatePawnCaptures() {
 void MoveGenerator::generateEnPassant(){
     U64 pawns = 0ULL;
     U16 flags = 0;
-    if(whiteToMove)
-        pawns = getPieceSet(nWhitePawn);
+    if(_state->getWhiteToMove())
+        pawns = _board->getPieceSet(nWhitePawn);
     else
-        pawns = getPieceSet(nBlackPawn);
+        pawns = _board->getPieceSet(nBlackPawn);
 
     while(pawns){
         int startSquare = getLSB(pawns);
         clearBit(pawns,startSquare);
 
-        U64 attacks = getPawnAttacks(startSquare);
+        U64 attacks = _atkTables->getPawnAttacks(startSquare);
         while(attacks){
             int targetSquare = getLSB(attacks);
             clearBit(attacks,targetSquare);
-            if(1ULL << targetSquare & enPassantSquare){
+            if(1ULL << targetSquare & _state->getEnPassantSquare()){
                 flags = nEnPassantCapture;
                 captures.emplace_back(startSquare,targetSquare,flags);
             }
@@ -278,7 +274,17 @@ void MoveGenerator::generateCastles() {
     U64 blackKingSideSquares = 1ULL << G8 | 1ULL << F8;
     U64 blackQueenSideSquares = 1ULL << C8 | 1ULL << D8;
 
-    if(whiteToMove && castleingRights[whiteKingside]){
+    if(_state->getWhiteToMove() && _state->getCastlingRight(whiteKingside)){
 
     }
+}
+bool MoveGenerator::isCapture(int targetSquare) const{
+    enumPieceBB captureColor = nWhite;
+    if(_state->getWhiteToMove())
+        captureColor = nBlack;
+
+    if((1ULL << targetSquare) & _board->getPieceSet(captureColor))
+        return true;
+    else
+        return false;
 }

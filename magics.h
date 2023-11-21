@@ -1,7 +1,5 @@
 #pragma once
-#include "bitboards.h"
 // magics from maksim Korzh
-
 // rook magic numbers
 const U64 rookMagics[64] = {
         0xa8002c000108020ULL,

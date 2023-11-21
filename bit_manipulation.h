@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "board_constants.h"
+
 // Bit manipulation functions
 void setBit(U64&, int);
 U64 getBit(U64&, int);

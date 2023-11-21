@@ -10,6 +10,7 @@ class FenParser {
 public:
     FenParser(BitBoard*,GameState*);
     void loadFenPosition(const std::string& fenString);
+    void loadStartingPosition();
     BitBoard* _board;
     GameState* _state;
 private:
