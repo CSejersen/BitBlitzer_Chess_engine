@@ -125,7 +125,7 @@ int FenParser::fenParseCastlingRights(int index, std::string& fen) {
     for(int i = index; i < fen.size() && !quit; i++) {
         switch (fen[i]) {
             case 'K':
-                _state->setCastlingRight(whiteKingside);
+                _state->setCastlingRight(whiteKingSide);
                 break;
 
             case 'Q':
@@ -133,11 +133,11 @@ int FenParser::fenParseCastlingRights(int index, std::string& fen) {
                 break;
 
             case 'k':
-                _state->setCastlingRight(blackKingside);
+                _state->setCastlingRight(blackKingSide);
                 break;
 
             case 'q':
-                _state->setCastlingRight(blackQueenside);
+                _state->setCastlingRight(blackQueenSide);
                 break;
 
             case '-':

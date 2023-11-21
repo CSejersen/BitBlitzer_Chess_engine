@@ -27,5 +27,4 @@ public:
 
 private:
     U16 _move;
-
 };

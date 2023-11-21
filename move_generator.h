@@ -15,21 +15,22 @@ public:
     AttackTables* _atkTables;
 
     void generateMoves();
+    std::list<Move> pseudoLegal;
+    std::list<Move> captures;
+
+private:
     void generateKnightMoves();
     void generateBishopMoves();
     void generateRookMoves();
     void generateKingMoves();
     void generateQueenMoves();
-    void generatePawnAdvancesWhite();
-    void generatePawnAdvancesBlack();
+    void generatePawnAdvances();
     void generatePawnCaptures();
     void generateEnPassant();
-    void generateCastles();
-    std::list<Move> pseudoLegal;
-    std::list<Move> captures;
-
-private:
+    void generateCastlesWhite();
     bool isCapture(int targetSquare) const;
+    void generatePawnAdvancesWhite();
+    void generatePawnAdvancesBlack();
 };
 
 

@@ -8,6 +8,17 @@ MoveGenerator::MoveGenerator(BitBoard *board, GameState *state, AttackTables *at
     _state = state;
     _atkTables = attackTables;
 }
+void MoveGenerator::generateMoves() {
+    generateKnightMoves();
+    generateBishopMoves();
+    generateRookMoves();
+    generateKingMoves();
+    generateQueenMoves();
+    generatePawnAdvances();
+    generatePawnCaptures();
+    generateEnPassant();
+    generateCastlesWhite();
+}
 void MoveGenerator::generateKnightMoves() {
     U64 knights = 0ULL;
     if(_state->getWhiteToMove())
@@ -218,6 +229,13 @@ void MoveGenerator::generatePawnAdvancesBlack() {
 
 }
 
+void MoveGenerator::generatePawnAdvances() {
+    if(_state->getWhiteToMove())
+        generatePawnAdvancesWhite();
+    else
+        generatePawnAdvancesBlack();
+}
+
 void MoveGenerator::generatePawnCaptures() {
     U64 pawns = 0ULL;
     U16 flags = 0;
@@ -266,17 +284,31 @@ void MoveGenerator::generateEnPassant(){
     }
 }
 
-void MoveGenerator::generateCastles() {
+void MoveGenerator::generateCastlesWhite() {
 
-//  castling squares
-    U64 whiteKingSideSquares = 1ULL << G1 | 1ULL << F1;
+    U64 kingSideSquares = 1ULL << G1 | 1ULL << F1;
     U64 whiteQueenSideSquares = 1ULL << C1 | 1ULL << D1;
     U64 blackKingSideSquares = 1ULL << G8 | 1ULL << F8;
     U64 blackQueenSideSquares = 1ULL << C8 | 1ULL << D8;
 
-    if(_state->getWhiteToMove() && _state->getCastlingRight(whiteKingside)){
+    if(_state->getCastlingRight(whiteKingSide)){
+        // checking if f1 and g1 are emptu
+        if((kingSideSquares & !_board->getPieceSet(nWhite)) == 0){
+            // checking if f1 or g1 is attacked
+            U64 blackAttack = _atkTables->getAttacksBlack();
+            if(blackAttack & kingSideSquares){
+                std::cout << "attacked" << std::endl;
+            }
+            else{
+                _state->addMoveToHistory(Move(E1,G1,nKingCastle));
+            }
+
+
+        }
 
     }
+
+
 }
 bool MoveGenerator::isCapture(int targetSquare) const{
     enumPieceBB captureColor = nWhite;

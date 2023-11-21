@@ -7,10 +7,10 @@
 #include <list>
 
 enum nCastleingRight{
-    whiteKingside,
+    whiteKingSide,
     whiteQueenSide,
-    blackKingside,
-    blackQueenside,
+    blackKingSide,
+    blackQueenSide,
 };
 
 class GameState {
@@ -30,15 +30,23 @@ public:
     void addMoveToHistory(Move);
     Move getLastMove();
     void deleteLastMove();
+    bool whiteKingMoved();
+    bool blackKingMoved();
+    bool blackKingsRookMoved();
+    bool blackQueensRookMoved();
+    bool whiteKingsRookMoved();
+    bool whiteQueensRookMoved();
+    void updateCastlingRights();
 
+    bool castlingRights[4]{};
 
 private:
-    bool castlingRights[4]{};
     int halfmoveClock{};
     int moveNum{};
     bool KingInCheck{};
     bool whiteToMove{};
     U64 enPassantSquare{};
+
 
     std::list<Move> gameHistory;
 };

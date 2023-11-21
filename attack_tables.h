@@ -22,6 +22,8 @@ public:
     U64 getKnightAttacks(int square) const;
     U64 getPawnAttacks(int square) const;
     U64 getKingAttacks(int square) const;
+    bool whiteKingInCheck();
+    bool blackKingInCheck();
 
 private:
     void loadAttackTables();

@@ -136,6 +136,7 @@ void BitBoard::makeMove(const Move& move) {
 
     _state->passTurn();
     _state->addMoveToHistory(move);
+    _state->updateCastlingRights();
 }
 
 int BitBoard::coordinateToIndex(std::string coordinate) {
@@ -278,5 +279,6 @@ std::string BitBoard::indexToCoordinate(int index){
     }
     return file+rank;
 
-    }
+}
+
 
