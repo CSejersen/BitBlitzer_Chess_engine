@@ -780,6 +780,7 @@ void BitBoard::makeMove(const Move& move) {
         std::cout << "Double pawn push! " << std::endl;
         std::cout << indexToCoordinate(startingSquare) << " - " << indexToCoordinate(targetSquare) << std::endl;
     }
+
     if(flag == nQuietMoves){
         std::cout << "Quiet Move " << std::endl;
         std::cout << indexToCoordinate(startingSquare) << " - " << indexToCoordinate(targetSquare) << std::endl;
@@ -1076,24 +1077,125 @@ void BitBoard::generateQueenMoves() {
 
 }
 
+void BitBoard::generatePawnAdvances() {
+    U64 pawns = 0ULL;
+    U64 move = 0ULL;
+    U16 flags = 0;
+    U16 targetSquare;
+    if(whiteToMove)
+        pawns = getPieceSet(nWhitePawn);
+    else
+        pawns = getPieceSet(nBlackPawn);
+
+    while(pawns){
+        int startSquare = getLSB(pawns);
+        U64 startSquareMask = 1ULL << startSquare;
+        clearBit(pawns,startSquare);
+
+        // adding single advances white
+        if(whiteToMove){
+            move = (startSquareMask << 8) & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
+            if(move){
+                targetSquare = getLSB(move);
+                flags = nQuietMoves;
+                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
+            }
+            else
+                continue;
+        }
+        // adding single advances black
+        else{
+            move = (startSquare >> 8) & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
+            if(move){
+                targetSquare = getLSB(move);
+                flags = nQuietMoves;
+                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
+            }
+            else
+                continue;
+        }
+
+        // getting double pawn advances for white
+        if(whiteToMove && (startSquareMask & RANK_2)){
+            move = startSquareMask << 16 & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
+            if(move){
+                targetSquare = getLSB(move);
+                flags = nDoublePawnPush;
+                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
+            }
+        }
+        // getting double pawn advances for white
+        if(!whiteToMove && (startSquareMask & RANK_7)){
+            move = startSquareMask >> 16 & ~(getPieceSet(nBlack) | getPieceSet(nWhite));
+            if(move){
+                targetSquare = getLSB(move);
+                flags = nDoublePawnPush;
+                pseudoLegal.emplace_back(startSquare,targetSquare,flags);
+            }
+        }
+    }
+
+}
+
+void BitBoard::generatePawnCaptures() {
+    U64 pawns = 0ULL;
+    U16 flags = 0;
+    if(whiteToMove)
+        pawns = getPieceSet(nWhitePawn);
+    else
+        pawns = getPieceSet(nBlackPawn);
+
+    while(pawns){
+        int startSquare = getLSB(pawns);
+        clearBit(pawns,startSquare);
+
+        U64 attacks = getPawnAttacks(startSquare);
+        while(attacks){
+            int targetSquare = getLSB(attacks);
+            clearBit(attacks,targetSquare);
+            if(isCapture(targetSquare)){
+                flags = nCapture;
+                captures.emplace_back(startSquare,targetSquare,flags);
+            }
+        }
+    }
+}
+
+void BitBoard::generateEnPassant(){
+    U64 pawns = 0ULL;
+    U16 flags = 0;
+    if(whiteToMove)
+        pawns = getPieceSet(nWhitePawn);
+    else
+        pawns = getPieceSet(nBlackPawn);
+
+    while(pawns){
+        int startSquare = getLSB(pawns);
+        clearBit(pawns,startSquare);
+
+        U64 attacks = getPawnAttacks(startSquare);
+        while(attacks){
+            int targetSquare = getLSB(attacks);
+            clearBit(attacks,targetSquare);
+            if( 1ULL << targetSquare & enPassantSquares){
+                flags = nEnPassantCapture;
+                captures.emplace_back(startSquare,targetSquare,flags);
+            }
+        }
+    }
+}
 
 void BitBoard::removeCastlingRight(castleingSide side) {
-
     if(whiteToMove)
         castleingRights[side] = false;
     else
         castleingRights[side + 2] = false;
-
-
-
 }
 
 std::string BitBoard::indexToCoordinate(int index){
     std::string rank;
     std::string file;
-
     rank += std::to_string(index/8 + 1);
-
     switch (index % 8) {
 
         case 0:
@@ -1120,15 +1222,12 @@ std::string BitBoard::indexToCoordinate(int index){
         case 7:
             file = "h";
             break;
-
-
         default:
             throw std::invalid_argument("error in indexToCoordinate switch case");
     }
     return file+rank;
 
     }
-
 
 bool BitBoard::isCapture(int targetSquare) const{
      enumPieceBB captureColor = nWhite;

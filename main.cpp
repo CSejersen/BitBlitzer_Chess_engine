@@ -33,20 +33,18 @@ int main(int argc, char* argv[]){
     BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
     board.makeMove(move6);
     BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
-    board.placePiece(nBlackBishop,F1);
 //    board.makeMove(move7);
 //    BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
 //    board.makeMove(move8);
 //    BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
-
-
-
 
     board.generateKnightMoves();
     board.generateBishopMoves();
     board.generateRookMoves();
     board.generateKingMoves();
     board.generateQueenMoves();
+    board.generatePawnAdvances();
+    board.generatePawnCaptures();
 
     std::cout << "Moves: " << std::endl;
     for(auto & it : board.pseudoLegal){

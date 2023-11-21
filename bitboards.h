@@ -27,7 +27,6 @@ enum castleingRight{
     blackKingside,
     blackQueenside,
 };
-
 enum castleingSide{
     kingSide,
     queenSide,
@@ -92,7 +91,6 @@ public:
     // Util functions
     U64 getPieceSet(enumPieceBB) const;
     int coordinateToIndex(std::string coordinate);
-    void undoMove();
     std::list<Move> gameHistory;
     std::list<Move> pseudoLegal;
     std::list<Move> captures;
@@ -107,7 +105,10 @@ public:
     void generatePawnCaptures();
     void generateKingMoves();
     void generateCastles();
-    void gemerateEnPassant();
+    void generateEnPassant();
+
+    //search
+    void undoMove();
 
 
     // Position loading
