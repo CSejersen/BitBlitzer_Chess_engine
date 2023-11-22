@@ -66,7 +66,7 @@ void BitBoard::makeMove(Move& move) {
     }
 
     // making move on the _board
-    pieceBB[pieceToMove] &= ~(1ULL << startingSquare); // removing Piece from starting _square
+    pieceBB[pieceToMove] &= ~(1ULL << startingSquare); // removing Piece from starting square
     placePiece(pieceToMove,targetSquare);
     if(_state->getWhiteToMove()){
         pieceBB[nWhite] &= ~(1ULL << startingSquare);
@@ -84,12 +84,6 @@ void BitBoard::makeMove(Move& move) {
     if(flag == nEnPassantCapture)
         handleEnPassantFlag(move);
 
-
-    if(flag == nQuietMoves){
-        std::cout << "Quiet move" << std::endl;
-        std::cout << indexToCoordinate(startingSquare) << " - " << indexToCoordinate(targetSquare) << std::endl;
-    }
-
     // reset En-Passant square and set a new one if double pawn push was played.
     _state->resetEnPassantSquare();
     if(flag == nDoublePawnPush){
@@ -97,9 +91,6 @@ void BitBoard::makeMove(Move& move) {
             _state->setEnPassantSquare(targetSquare - 8);
         else
             _state->setEnPassantSquare(targetSquare + 8);
-
-        std::cout << "Double pawn push! " << std::endl;
-        std::cout << indexToCoordinate(startingSquare) << " - " << indexToCoordinate(targetSquare) << std::endl;
     }
 
     _state->passTurn();
@@ -129,9 +120,6 @@ void BitBoard::handleCaptureFlag(Move& move) {
             }
         }
     }
-
-    std::cout << "Capture!" << std::endl;
-    std::cout << indexToCoordinate(startingSquare) << " - " << indexToCoordinate(targetSquare) << std::endl;
 
     // removing captured Piece from _board
     pieceBB[pieceToCapture] &= ~1ULL << targetSquare;
@@ -166,9 +154,6 @@ void BitBoard::handleEnPassantFlag(Move& move) {
         // storing captured pawn in move member attribute
         move.setCapturedPiece(Piece(nWhitePawn, pieceToCapture));
     }
-
-    std::cout << "En-Passant Capture!" << std::endl;
-    std::cout << indexToCoordinate(startingSquare) << " - " << indexToCoordinate(targetSquare) << std::endl;
 }
 
 int BitBoard::coordinateToIndex(std::string coordinate) {
@@ -244,13 +229,15 @@ int BitBoard::coordinateToIndex(std::string coordinate) {
 }
 
 void BitBoard::undoMove() {
+    // Give turn back
+    _state->passTurn();
+
     Move move = _state->getLastMove();
     int startSquare = move.getStartSquare();
     int targetSquare = move.getTargetSquare();
     int flag = move.getFlag();
     Piece capturedPiece;
     int pieceToMove = 0;
-
 
     // finding moved piece
     for(int pieceType = nWhitePawn; pieceType <= nBlackKing; pieceType++){
@@ -264,16 +251,14 @@ void BitBoard::undoMove() {
             break;
         }
     }
-
     // Undoing move on the _board
-    pieceBB[pieceToMove] &= (~1ULL << targetSquare);
+    pieceBB[pieceToMove] &= ~(1ULL << targetSquare);
     placePiece(pieceToMove,startSquare);
-
     if(_state->getWhiteToMove()){
-        pieceBB[nBlack] &= ~(1ULL << targetSquare);
+        pieceBB[nWhite] &= ~(1ULL << targetSquare);
     }
     else{
-        pieceBB[nWhite] &= ~(1ULL << targetSquare);
+        pieceBB[nBlack] &= ~(1ULL << targetSquare);
     }
 
 
@@ -283,8 +268,7 @@ void BitBoard::undoMove() {
         placePiece(capturedPiece.getPieceType(),capturedPiece.getSquare());
     }
     // passing turn back
-    _state->passTurn();
-    _state->deleteLastMove();
+    _state->deleteLastMoveFromHistory();
 };
 
 std::string BitBoard::indexToCoordinate(int index){

@@ -20,7 +20,8 @@ public:
     U64 getRookAttacks(int square) const;
     U64 getBishopAttacks(int square) const;
     U64 getKnightAttacks(int square) const;
-    U64 getPawnAttacks(int square) const;
+    U64 getPawnAttacksWhite(int square) const;
+    U64 getPawnAttacksBlack(int square) const;
     U64 getKingAttacks(int square) const;
 
 private:

@@ -20,7 +20,7 @@ public:
     bool getWhiteToMove() const;
     void addMoveToHistory(Move);
     Move getLastMove();
-    void deleteLastMove();
+    void deleteLastMoveFromHistory();
     void passTurn();
 
     // for FEN parsing

@@ -282,7 +282,7 @@ U64 AttackTables::getAttacksBlack() const {
         attacks |= kingAttacks[square];
         clearBit(king,square);
     }
-    return (attacks & ~_board->getPieceSet(nWhite));
+    return (attacks & ~_board->getPieceSet(nBlack));
 }
 
 U64 AttackTables::getAttacksCurrentTurn() const {
@@ -295,13 +295,7 @@ U64 AttackTables::getRookAttacks(int square) const {
     U64 blockers = _board->getPieceSet(nWhite) | _board->getPieceSet(nBlack);
     blockers &= rookAttackMask[square];
     U64 magicIndex = (blockers * rookMagics[square]) >> (64 - rookRelevantBits[square]);
-
-    if(_state->getWhiteToMove()){
-        return rookAttacks[square][magicIndex] & ~_board->getPieceSet(nWhite);
-    }
-    else{
-        return rookAttacks[square][magicIndex] & ~_board->getPieceSet(nBlack);
-    }
+    return rookAttacks[square][magicIndex];
 }
 
 U64 AttackTables::getBishopAttacks(int square) const {
@@ -309,39 +303,24 @@ U64 AttackTables::getBishopAttacks(int square) const {
     blockers &= bishopAttackMask[square];
     U64 magicIndex = (blockers * bishopMagics[square]) >> (64 - bishopRelevantBits[square]);
 
-    if (_state->getWhiteToMove()) {
-        return bishopAttacks[square][magicIndex] & ~_board->getPieceSet(nWhite);
-    } else {
-        return bishopAttacks[square][magicIndex] & ~_board->getPieceSet(nBlack);
-
-    }
+    return bishopAttacks[square][magicIndex];
 }
 
-U64 AttackTables::getKnightAttacks(int square) const{
-    if(_state->getWhiteToMove()){
-        return knightAttacks[square] & ~_board->getPieceSet(nWhite);
-    }
-    else{
-        return knightAttacks[square] & ~_board->getPieceSet(nBlack);
-    }
+
+U64 AttackTables::getKnightAttacks(int square) const {
+    return knightAttacks[square];
 }
 
-U64 AttackTables::getPawnAttacks(int square) const{
-    if(_state->getWhiteToMove()){
-        return pawnAttacks[square][0];
-    }
-    else{
-        return pawnAttacks[square][1];
-    }
+U64 AttackTables::getPawnAttacksWhite(int square) const{
+    return pawnAttacks[square][0];
+}
+
+U64 AttackTables::getPawnAttacksBlack(int square) const{
+    return pawnAttacks[square][1];
 }
 
 U64 AttackTables::getKingAttacks(int square) const{
-    if(_state->getWhiteToMove()){
-        return kingAttacks[square] & ~_board->getPieceSet(nWhite);
-    }
-    else{
-        return kingAttacks[square] & ~_board->getPieceSet(nBlack);
-    }
+    return kingAttacks[square];
 }
 
 //bool AttackTables::whiteKingInCheck() {

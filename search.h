@@ -15,7 +15,4 @@ public:
     Search(BitBoard* board, MoveGenerator* generator, AttackTables* atkTables, GameState* state);
 
 private:
-    bool whiteKingInCheck();
-    bool blackKingInCheck();
-
 };

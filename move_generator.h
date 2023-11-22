@@ -4,6 +4,7 @@
 #include "attack_tables.h"
 #include "bit_manipulation.h"
 #include "move.h"
+#include <list>
 
 
 class MoveGenerator {
@@ -15,12 +16,18 @@ public:
     AttackTables* _atkTables;
 
     void generateMoves();
+    void pruneIllegalMoves();
+    bool whiteKingInCheck();
+    bool blackKingInCheck();
+    std::list<Move> legalMoves;
+    std::list<Move> legalCaptures;
+
     std::list<Move> pseudoLegal;
-    std::list<Move> captures;
+    std::list<Move> pseudoLegalCapture;
 
 private:
-    // generate moves
-    void generateKnightMoves();
+    // generate pseudo-legal moves
+    void generateKnightMovesWhite();
     void generateBishopMoves();
     void generateRookMoves();
     void generateKingMoves();
@@ -35,8 +42,9 @@ private:
 
     // utility
     bool isCapture(int targetSquare) const;
-    bool whiteKingInCheck();
-    bool blackKingInCheck();
+
+
+
 };
 
 

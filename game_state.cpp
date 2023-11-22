@@ -167,7 +167,7 @@ Move GameState::getLastMove(){
     return *it;
 }
 
-void GameState::deleteLastMove() {
+void GameState::deleteLastMoveFromHistory() {
     auto it = gameHistory.end();
     it --;
     gameHistory.erase(it);
