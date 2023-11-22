@@ -16,20 +16,26 @@ enum nCastleingRight{
 class GameState {
 public:
     GameState();
+    //Move related
     bool getWhiteToMove() const;
-    void setWhiteToMove(bool);
-    void resetCastlingRights();
-    void setCastlingRight(nCastleingRight index);
-    bool getCastlingRight(nCastleingRight index) const;
-    U64 getEnPassantSquare() const;
-    void setEnPassantSquare(int square);
-    void resetEnPassantSquare();
-    void setHalfMoveClock(int);
-    void setMoveNum(int);
-    void passTurn();
     void addMoveToHistory(Move);
     Move getLastMove();
     void deleteLastMove();
+    void passTurn();
+
+    // for FEN parsing
+    void setHalfMoveClock(int);
+    void setMoveNum(int);
+    void setWhiteToMove(bool);
+
+    // Castling
+    void setCastlingRight(int index);
+    bool getCastlingRight(int index) const;
+    void resetCastlingRights();
+    bool whiteKingsRookCaptured();
+    bool whiteQueensRookCaptured();
+    bool blackKingsRookCaptured();
+    bool blackQueensRookCaptured();
     bool whiteKingMoved();
     bool blackKingMoved();
     bool blackKingsRookMoved();
@@ -38,16 +44,21 @@ public:
     bool whiteQueensRookMoved();
     void updateCastlingRights();
 
-    bool castlingRights[4]{};
+    // En-Passant
+    U64 getEnPassantSquare() const;
+    void setEnPassantSquare(int square);
+    void resetEnPassantSquare();
+
 
 private:
+
+    // game state attributes
+    bool whiteToMove{};
+    bool KingInCheck{};
     int halfmoveClock{};
     int moveNum{};
-    bool KingInCheck{};
-    bool whiteToMove{};
     U64 enPassantSquare{};
-
-
+    bool castlingRights[4]{};
     std::list<Move> gameHistory;
 };
 

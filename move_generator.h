@@ -28,6 +28,7 @@ private:
     void generatePawnCaptures();
     void generateEnPassant();
     void generateCastlesWhite();
+    void generateCastlesBlack();
     bool isCapture(int targetSquare) const;
     void generatePawnAdvancesWhite();
     void generatePawnAdvancesBlack();

@@ -8,11 +8,11 @@ void GameState::resetCastlingRights() {
     }
 }
 
-void GameState::setCastlingRight(nCastleingRight enumIndex) {
-    castlingRights[enumIndex] = true;
+void GameState::setCastlingRight(int index) {
+    castlingRights[index] = true;
 }
 
-bool GameState::getCastlingRight(nCastleingRight index) const{
+bool GameState::getCastlingRight(int index) const{
     return castlingRights[index];
 }
 void GameState::setEnPassantSquare(int square){
@@ -51,13 +51,55 @@ void GameState::resetEnPassantSquare() {
 void GameState::passTurn() {
     whiteToMove = !whiteToMove;
 }
+
+bool GameState::whiteKingsRookCaptured(){
+    bool captured = false;
+    for(auto& it: gameHistory ){
+        if(it.getTargetSquare() == H1){
+            captured = true;
+            break;
+        }
+    }
+    return captured;
+}
+bool GameState::whiteQueensRookCaptured(){
+    bool captured = false;
+    for(auto& it: gameHistory ){
+        if(it.getTargetSquare() == A1){
+            captured = true;
+            break;
+        }
+    }
+    return captured;
+}
+bool GameState::blackKingsRookCaptured(){
+    bool captured = false;
+    for(auto& it: gameHistory ){
+        if(it.getTargetSquare() == H8){
+            captured = true;
+            break;
+        }
+    }
+    return captured;
+}
+bool GameState::blackQueensRookCaptured(){
+    bool captured = false;
+    for(auto& it: gameHistory ){
+        if(it.getTargetSquare() == A8){
+            captured = true;
+            break;
+        }
+    }
+    return captured;
+}
+
 bool GameState::whiteKingMoved() {
     bool moved = false;
     for(auto& it: gameHistory ){
-        if(it.getStartSquare() == E1)
+        if(it.getStartSquare() == E1){
             moved = true;
-        else
-            moved = false;
+            break;
+        }
     }
        return moved;
 }
@@ -65,10 +107,10 @@ bool GameState::whiteKingMoved() {
 bool GameState::blackKingMoved() {
     bool moved = false;
     for(auto& it: gameHistory ){
-        if(it.getStartSquare() == E8)
+        if(it.getStartSquare() == E8){
             moved = true;
-        else
-            moved = false;
+            break;
+        }
     }
     return moved;
 }
@@ -76,10 +118,10 @@ bool GameState::blackKingMoved() {
 bool GameState::blackKingsRookMoved(){
     bool moved = false;
     for(auto& it: gameHistory ){
-        if(it.getStartSquare() == H8)
+        if(it.getStartSquare() == H8){
             moved = true;
-        else
-            moved = false;
+            break;
+        }
     }
     return moved;
 
@@ -87,30 +129,30 @@ bool GameState::blackKingsRookMoved(){
 bool GameState::blackQueensRookMoved(){
     bool moved = false;
     for(auto& it: gameHistory ){
-        if(it.getStartSquare() == A8)
+        if(it.getStartSquare() == A8){
             moved = true;
-        else
-            moved = false;
+            break;
+        }
     }
     return moved;
 }
 bool GameState::whiteKingsRookMoved(){
     bool moved = false;
     for(auto& it: gameHistory ){
-        if(it.getStartSquare() == H1)
+        if(it.getStartSquare() == H1){
             moved = true;
-        else
-            moved = false;
+            break;
+        }
     }
     return moved;
 }
 bool GameState::whiteQueensRookMoved(){
     bool moved = false;
     for(auto& it: gameHistory ){
-        if(it.getStartSquare() == A1)
+        if(it.getStartSquare() == A1){
             moved = true;
-        else
-            moved = false;
+            break;
+        }
     }
     return moved;
 }
@@ -132,29 +174,46 @@ void GameState::deleteLastMove() {
 }
 
 void GameState::updateCastlingRights() {
+
+    // start by setting everything true
+    castlingRights[whiteKingSide] = true;
+    castlingRights[whiteQueenSide] = true;
+    castlingRights[blackKingSide] = true;
+    castlingRights[blackQueenSide] = true;
+
+    //white king movement
     if(whiteKingMoved()){
         castlingRights[whiteKingSide] = false;
         castlingRights[whiteQueenSide] = false;
     }
-    else{
-        castlingRights[whiteKingSide] = true;
-        castlingRights[whiteQueenSide] = true;
-    }
+
+    //white king side rook movement or capture
     if(whiteKingsRookMoved())
         castlingRights[whiteKingSide] = false;
+    if(whiteKingsRookCaptured())
+        castlingRights[whiteKingSide] = false;
+
+    //white queen side rook movement or capture
     if(whiteQueensRookMoved())
         castlingRights[whiteQueenSide] = false;
+    if(whiteQueensRookCaptured())
+        castlingRights[whiteQueenSide] = false;
 
+    // Black king movement
     if(blackKingMoved()){
         castlingRights[blackKingSide] = false;
         castlingRights[blackQueenSide] = false;
     }
-    else{
-        castlingRights[blackKingSide] = true;
-        castlingRights[blackQueenSide] = true;
-    }
+
+    // Black king side rook movement or capture
     if(blackKingsRookMoved())
         castlingRights[blackKingSide] = false;
+    if(blackKingsRookCaptured())
+        castlingRights[blackKingSide] = false;
+
+    // Black queen side rook movement or capture
     if(blackQueensRookMoved())
+        castlingRights[blackQueenSide] = false;
+    if(blackKingsRookCaptured())
         castlingRights[blackQueenSide] = false;
 }

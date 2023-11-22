@@ -18,8 +18,6 @@ add_executable(BBchess_engine main.cpp
         move.h
         move.cpp
         magics.h
-        SDL_functions.cpp
-        SDL_functions.h
         fen_parser.cpp
         fen_parser.h
         attack_tables.cpp

@@ -18,6 +18,7 @@ void MoveGenerator::generateMoves() {
     generatePawnCaptures();
     generateEnPassant();
     generateCastlesWhite();
+    generateCastlesBlack();
 }
 void MoveGenerator::generateKnightMoves() {
     U64 knights = 0ULL;
@@ -287,9 +288,8 @@ void MoveGenerator::generateEnPassant(){
 void MoveGenerator::generateCastlesWhite() {
 
     U64 kingSideSquares = 1ULL << G1 | 1ULL << F1;
-    U64 whiteQueenSideSquares = 1ULL << C1 | 1ULL << D1;
-    U64 blackKingSideSquares = 1ULL << G8 | 1ULL << F8;
-    U64 blackQueenSideSquares = 1ULL << C8 | 1ULL << D8;
+    U64 queenSideSquares = 1ULL << C1 | 1ULL << D1;
+    U64 queenSideBlockSquares = 1ULL << C1 | 1ULL << D1 | 1ULL << B1;
 
     if(_state->getCastlingRight(whiteKingSide)){
         // checking if f1 and g1 are emptu
@@ -300,16 +300,58 @@ void MoveGenerator::generateCastlesWhite() {
                 std::cout << "attacked" << std::endl;
             }
             else{
-                _state->addMoveToHistory(Move(E1,G1,nKingCastle));
+                pseudoLegal.emplace_back(E1,G1,nKingCastle);
             }
-
-
         }
-
     }
-
-
+    if(_state->getCastlingRight(whiteQueenSide)){
+        // checking if b1, c1 and d1 are emptu
+        if((queenSideBlockSquares & !_board->getPieceSet(nWhite)) == 0){
+            // checking if c1 or d1 is attacked
+            U64 blackAttack = _atkTables->getAttacksBlack();
+            if(blackAttack & queenSideSquares){
+                std::cout << "attacked" << std::endl;
+            }
+            else{
+                pseudoLegal.emplace_back(E1,C1,nQueenCastle);
+            }
+        }
+    }
 }
+
+void MoveGenerator::generateCastlesBlack(){
+    U64 kingSideSquares = 1ULL << G8 | 1ULL << F8;
+    U64 queenSideSquares = 1ULL << C8 | 1ULL << D8;
+    U64 queenSideBlockSquares = 1ULL << C3 | 1ULL << D8 | 1ULL << B8;
+
+    if(_state->getCastlingRight(blackKingSide)){
+        // checking if f1 and g1 are emptu
+        if((kingSideSquares & !_board->getPieceSet(nBlack)) == 0){
+            // checking if f1 or g1 is attacked
+            U64 whiteAttack = _atkTables->getAttacksWhite();
+            if(whiteAttack & kingSideSquares){
+                std::cout << "attacked" << std::endl;
+            }
+            else{
+                pseudoLegal.emplace_back(E8,G8,nKingCastle);
+            }
+        }
+    }
+    if(_state->getCastlingRight(blackQueenSide)){
+        // checking if b8, c8 and d8 are emptu
+        if((queenSideBlockSquares & !_board->getPieceSet(nBlack)) == 0){
+            // checking if c8 or d8 is attacked
+            U64 whiteAttack = _atkTables->getAttacksWhite();
+            if(whiteAttack & queenSideSquares){
+                std::cout << "attacked" << std::endl;
+            }
+            else{
+                pseudoLegal.emplace_back(E8,C8,nQueenCastle);
+            }
+        }
+    }
+}
+
 bool MoveGenerator::isCapture(int targetSquare) const{
     enumPieceBB captureColor = nWhite;
     if(_state->getWhiteToMove())
