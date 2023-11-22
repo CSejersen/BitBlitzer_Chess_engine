@@ -1,4 +1,5 @@
 #pragma once
+#include "piece.h"
 #include "board_constants.h"
 
 enum enumMoveFlags{
@@ -14,7 +15,7 @@ enum enumMoveFlags{
     nQueenPromo,
     nKnightPromoCapture,
     nBishopPromoCapture,
-    hRookPromoCapture,
+    nRookPromoCapture,
     nQueenPromoCapture,
 };
 
@@ -24,7 +25,10 @@ public:
     int getStartSquare() const;
     int getTargetSquare() const;
     int getFlag() const;
+    Piece getCapturedPiece() const;
+    void setCapturedPiece(Piece);
 
 private:
     U16 _move;
+    Piece _capturedPiece;
 };

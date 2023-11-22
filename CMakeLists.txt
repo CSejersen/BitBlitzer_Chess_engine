@@ -29,6 +29,10 @@ add_executable(BBchess_engine main.cpp
         board_constants.h
         board_constants.cpp
         move_generator.cpp
+        piece.cpp
+        piece.h
+        search.cpp
+        search.h
 )
 
 target_link_libraries(BBchess_engine ${SDL2_LIBRARY} )

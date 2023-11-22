@@ -6,6 +6,7 @@
 #include "attack_tables.h"
 #include "game_state.h"
 #include "fen_parser.h"
+#include "search.h"
 
 
 //#include <SDL_image.h>
@@ -18,6 +19,7 @@ int main(int argc, char* argv[]){
     AttackTables atkTables(&board,&state);
     MoveGenerator moveGenerator(&board, &state, &atkTables);
     FenParser fenParser(&board, &state);
+    Search search(&board, &moveGenerator, &atkTables, &state);
 
     fenParser.loadStartingPosition();
 
@@ -25,7 +27,7 @@ int main(int argc, char* argv[]){
     Move move2(E7,E5, nDoublePawnPush);
     Move move3(G1,F3, nQuietMoves);
     Move move4(B8,C6, nQuietMoves);
-    Move move5(F3,E5,nCapture);
+    Move move5(F1,C4,nQuietMoves);
     Move move6(D7,D6,nQuietMoves);
     Move move7(E5,F3,nQuietMoves);
     Move move8(D7,D6,nQuietMoves);
@@ -41,9 +43,10 @@ int main(int argc, char* argv[]){
     board.makeMove(move5);
     BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
     board.makeMove(move6);
+    board.placePiece(nBlackBishop,D3);
     BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
-    board.makeMove(move7);
-    BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
+//    board.makeMove(move7);
+//    BitBoard::printBB(board.getPieceSet(nWhite) | board.getPieceSet(nBlack));
 
     moveGenerator.generateMoves();
 

@@ -19,6 +19,7 @@ public:
     std::list<Move> captures;
 
 private:
+    // generate moves
     void generateKnightMoves();
     void generateBishopMoves();
     void generateRookMoves();
@@ -29,9 +30,13 @@ private:
     void generateEnPassant();
     void generateCastlesWhite();
     void generateCastlesBlack();
-    bool isCapture(int targetSquare) const;
     void generatePawnAdvancesWhite();
     void generatePawnAdvancesBlack();
+
+    // utility
+    bool isCapture(int targetSquare) const;
+    bool whiteKingInCheck();
+    bool blackKingInCheck();
 };
 
 

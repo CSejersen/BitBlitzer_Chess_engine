@@ -168,7 +168,7 @@ void AttackTables::loadAttackTables() {
         }
     }
     // implement sliding pieces (bishops, rooks, queens) with 2D-array lookup tables,
-    // every square can be looked up for all possible blocker patterns.
+    // every _square can be looked up for all possible blocker patterns.
 
     // Rooks
     // looping over all 64 squares
@@ -343,17 +343,18 @@ U64 AttackTables::getKingAttacks(int square) const{
         return kingAttacks[square] & ~_board->getPieceSet(nBlack);
     }
 }
-bool AttackTables::whiteKingInCheck() {
-    U64 king = _board->getPieceSet(nWhiteKing);
-    if(king & getAttacksBlack())
-        return true;
-    else
-        return false;
-}
-bool AttackTables::blackKingInCheck() {
-    U64 king = _board->getPieceSet(nBlackKing);
-    if(king & getAttacksWhite())
-        return true;
-    else
-        return false;
-}
+
+//bool AttackTables::whiteKingInCheck() {
+//    U64 king = _board->getPieceSet(nWhiteKing);
+//    if(king & getAttacksBlack())
+//        return true;
+//    else
+//        return false;
+//}
+//bool AttackTables::blackKingInCheck() {
+//    U64 king = _board->getPieceSet(nBlackKing);
+//    if(king & getAttacksWhite())
+//        return true;
+//    else
+//        return false;
+//}

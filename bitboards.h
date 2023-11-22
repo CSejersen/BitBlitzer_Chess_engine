@@ -10,7 +10,7 @@ class BitBoard{
 public:
     explicit BitBoard(GameState*);
     GameState* _state;
-    void makeMove(const Move&);
+    void makeMove(Move&);
     void undoMove();
     void placePiece(int piece, int square);
     U64 getPieceSet(enumPieceBB) const;
@@ -26,4 +26,8 @@ public:
 private:
     // bitboards containing current position
     U64 pieceBB[14];
+
+    // utility functions for makeMove()
+    void handleEnPassantFlag(Move&);
+    void handleCaptureFlag(Move&);
 };

@@ -22,8 +22,6 @@ public:
     U64 getKnightAttacks(int square) const;
     U64 getPawnAttacks(int square) const;
     U64 getKingAttacks(int square) const;
-    bool whiteKingInCheck();
-    bool blackKingInCheck();
 
 private:
     void loadAttackTables();
@@ -32,6 +30,7 @@ private:
     void generateRookAttackMasks();
     U64 rookAttacksOnTheFly(int square, U64 blockers);
     U64 bishopAttacksOnTheFly(int square, U64 blockers);
+
 
     // Arrays of all possible attacks (initialized by constructor);
     // rook and bishop 2nd index stores blocker patterns using magic number indexing.

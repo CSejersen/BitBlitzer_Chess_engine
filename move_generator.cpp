@@ -17,8 +17,11 @@ void MoveGenerator::generateMoves() {
     generatePawnAdvances();
     generatePawnCaptures();
     generateEnPassant();
-    generateCastlesWhite();
-    generateCastlesBlack();
+    if(_state->getWhiteToMove()){
+        generateCastlesWhite();
+    }
+    else
+        generateCastlesBlack();
 }
 void MoveGenerator::generateKnightMoves() {
     U64 knights = 0ULL;
@@ -306,7 +309,7 @@ void MoveGenerator::generateCastlesWhite() {
     }
     if(_state->getCastlingRight(whiteQueenSide)){
         // checking if b1, c1 and d1 are emptu
-        if((queenSideBlockSquares & !_board->getPieceSet(nWhite)) == 0){
+        if((queenSideBlockSquares & (_board->getPieceSet(nWhite))) == 0){
             // checking if c1 or d1 is attacked
             U64 blackAttack = _atkTables->getAttacksBlack();
             if(blackAttack & queenSideSquares){
@@ -362,3 +365,5 @@ bool MoveGenerator::isCapture(int targetSquare) const{
     else
         return false;
 }
+
+

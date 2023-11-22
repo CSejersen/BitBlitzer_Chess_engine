@@ -32,16 +32,16 @@ public:
     void setCastlingRight(int index);
     bool getCastlingRight(int index) const;
     void resetCastlingRights();
-    bool whiteKingsRookCaptured();
-    bool whiteQueensRookCaptured();
-    bool blackKingsRookCaptured();
-    bool blackQueensRookCaptured();
-    bool whiteKingMoved();
-    bool blackKingMoved();
-    bool blackKingsRookMoved();
-    bool blackQueensRookMoved();
-    bool whiteKingsRookMoved();
-    bool whiteQueensRookMoved();
+    bool whiteKingsRookCaptured() const;
+    bool whiteQueensRookCaptured() const;
+    bool blackKingsRookCaptured() const;
+    bool blackQueensRookCaptured() const;
+    bool whiteKingMoved() const;
+    bool blackKingMoved() const;
+    bool blackKingsRookMoved() const;
+    bool blackQueensRookMoved() const;
+    bool whiteKingsRookMoved() const;
+    bool whiteQueensRookMoved() const;
     void updateCastlingRights();
 
     // En-Passant
@@ -54,12 +54,13 @@ private:
 
     // game state attributes
     bool whiteToMove{};
-    bool KingInCheck{};
     int halfmoveClock{};
     int moveNum{};
     U64 enPassantSquare{};
     bool castlingRights[4]{};
     std::list<Move> gameHistory;
+    bool whiteInCheck;
+    bool blackInCheck;
 };
 
 
