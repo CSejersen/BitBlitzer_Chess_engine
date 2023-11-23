@@ -27,7 +27,9 @@ private:
     // bitboards containing current position
     U64 pieceBB[14];
 
-    // utility functions for makeMove()
+    // flag handlers for makeMove()
     void handleEnPassantFlag(Move&);
     void handleCaptureFlag(Move&);
+    void handleCastlesKingSide();
+    void handleCastlesQueenSide();
 };

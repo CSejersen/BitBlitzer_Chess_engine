@@ -52,6 +52,26 @@ void BitBoard::makeMove(Move& move) {
     int flag = move.getFlag();
     int pieceToMove = 0;
 
+    // checking for capture
+    if(flag == nCapture || flag == nRookPromoCapture || flag == nBishopPromoCapture || flag == nKnightPromoCapture || flag == nQueenPromoCapture)
+        handleCaptureFlag(move);
+
+    // Checking for En Passant
+    if(flag == nEnPassantCapture)
+        handleEnPassantFlag(move);
+
+    // Checking for king side castling
+    if(flag == nKingCastle)
+        handleCastlesKingSide();
+
+    // Checking for queens side castling
+    if(flag == nQueenCastle)
+        handleCastlesQueenSide();
+
+
+
+
+
     // Looping over all pieceTypes to find pieceToMove.
     for(int pieceType = nWhitePawn; pieceType <= nBlackKing; pieceType++){
         // skipping _board with all black pieces (all white _board already skipped by starting loop at nWhitePawn);
@@ -75,14 +95,7 @@ void BitBoard::makeMove(Move& move) {
         pieceBB[nBlack] &= ~(1ULL << startingSquare);
     }
 
-    // checking for capture
-    if(flag == nCapture || flag == nRookPromoCapture || flag == nBishopPromoCapture || flag == nKnightPromoCapture || flag == nQueenPromoCapture)
-        handleCaptureFlag(move);
 
-
-    // Checking for En Passant
-    if(flag == nEnPassantCapture)
-        handleEnPassantFlag(move);
 
     // reset En-Passant square and set a new one if double pawn push was played.
     _state->resetEnPassantSquare();
@@ -99,39 +112,41 @@ void BitBoard::makeMove(Move& move) {
 }
 
 void BitBoard::handleCaptureFlag(Move& move) {
-    int startingSquare = move.getStartSquare();
     int targetSquare = move.getTargetSquare();
-    int pieceToCapture = 0;
+    Piece pieceToCapture;
 
     // Checking for capture
     // searching for Piece to capture
     if (_state->getWhiteToMove()) {
         for (int piece = nBlackPawn; piece <= nBlackKing; piece++) {
             if (pieceBB[piece] & 1ULL << targetSquare) {
-                pieceToCapture = piece;
+                pieceToCapture.setPieceType(piece);
                 break;
             }
         }
     } else {
         for (int piece = nWhitePawn; piece <= nWhiteKing; piece++) {
             if (pieceBB[piece] & 1ULL << targetSquare) {
-                pieceToCapture = piece;
+                pieceToCapture.setPieceType(piece);
                 break;
             }
         }
+        pieceToCapture.setSquare(targetSquare);
+        move.setCapturedPiece(pieceToCapture);
+
+
     }
 
     // removing captured Piece from _board
-    pieceBB[pieceToCapture] &= ~1ULL << targetSquare;
+    pieceBB[pieceToCapture.getPieceType()] &= ~1ULL << targetSquare;
     // storing capture piece in move member attribute
-
-    move.setCapturedPiece(Piece(pieceToCapture,targetSquare));
+    move.setCapturedPiece(pieceToCapture);
 
     // removing from nWhite and nBlack pieceBB's
     if(_state->getWhiteToMove())
-        pieceBB[nBlack] &= ~1ULL << targetSquare;
+        pieceBB[nBlack] &= ~(1ULL << targetSquare);
     else
-        pieceBB[nWhite] &= ~1ULL << targetSquare;
+        pieceBB[nWhite] &= ~(1ULL << targetSquare);
 }
 
 void BitBoard::handleEnPassantFlag(Move& move) {
@@ -263,6 +278,7 @@ void BitBoard::undoMove() {
 
 
     if(flag == nCapture || flag == nEnPassantCapture || flag == nKnightPromoCapture || flag == nBishopPromoCapture || flag == nRookPromoCapture || flag == nQueenPromoCapture){
+
         capturedPiece = move.getCapturedPiece();
         // replacing captured piece
         placePiece(capturedPiece.getPieceType(),capturedPiece.getSquare());
@@ -307,5 +323,46 @@ std::string BitBoard::indexToCoordinate(int index){
     return file+rank;
 
 }
+
+void BitBoard::handleCastlesKingSide() {
+
+    if(_state->getWhiteToMove()){
+        // Removing rook from H1
+        pieceBB[nWhiteRook] &= ~(1ULL << H1);
+        pieceBB[nWhite] &= ~(1ULL << H1);
+
+        // Placing rook on F1
+        placePiece(nWhiteRook,F1);
+    }
+    else{
+        // removing rook from H8
+        pieceBB[nBlackRook] &= ~(1ULL << H8);
+        pieceBB[nBlack] &= ~(1ULL << H8);
+
+        // Placing rook on F8
+        placePiece(nWhiteRook,F8);
+    }
+}
+
+void BitBoard::handleCastlesQueenSide() {
+    if(_state->getWhiteToMove()){
+        // Removing rook from H1
+        pieceBB[nWhiteRook] &= ~(1ULL << A1);
+        pieceBB[nWhite] &= ~(1ULL << A1);
+
+        // Placing rook on F1
+        placePiece(nWhiteRook,D1);
+    }
+    else{
+        // removing rook from H8
+        pieceBB[nBlackRook] &= ~(1ULL << A8);
+        pieceBB[nBlack] &= ~(1ULL << A8);
+        // Placing rook on F8
+        placePiece(nWhiteRook,D8);
+    }
+}
+
+
+
 
 

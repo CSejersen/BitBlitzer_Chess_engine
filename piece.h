@@ -6,6 +6,8 @@ public:
     Piece();
     int getPieceType() const;
     int getSquare() const;
+    void setPieceType(int pieceType);
+    void setSquare(int square);
 private:
     int _pieceType;
     int _square;

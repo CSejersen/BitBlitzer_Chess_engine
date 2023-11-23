@@ -6,7 +6,6 @@
 #include "move.h"
 #include <list>
 
-
 class MoveGenerator {
 
 public:
@@ -16,14 +15,12 @@ public:
     AttackTables* _atkTables;
 
     void generateMoves();
-    void pruneIllegalMoves();
-    bool whiteKingInCheck();
-    bool blackKingInCheck();
     std::list<Move> legalMoves;
     std::list<Move> legalCaptures;
 
-    std::list<Move> pseudoLegal;
-    std::list<Move> pseudoLegalCapture;
+    // Debug functions
+    void printLegalMoves();
+
 
 private:
     // generate pseudo-legal moves
@@ -39,9 +36,16 @@ private:
     void generateCastlesBlack();
     void generatePawnAdvancesWhite();
     void generatePawnAdvancesBlack();
+    void pruneIllegalMoves();
 
     // utility
     bool isCapture(int targetSquare) const;
+    bool whiteKingInCheck();
+    bool blackKingInCheck();
+
+    // Pseudo-legal moves
+    std::list<Move> pseudoLegal;
+    std::list<Move> pseudoLegalCapture;
 
 
 

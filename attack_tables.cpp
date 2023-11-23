@@ -323,6 +323,8 @@ U64 AttackTables::getKingAttacks(int square) const{
     return kingAttacks[square];
 }
 
+
+
 //bool AttackTables::whiteKingInCheck() {
 //    U64 king = _board->getPieceSet(nWhiteKing);
 //    if(king & getAttacksBlack())

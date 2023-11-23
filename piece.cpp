@@ -17,3 +17,11 @@ int Piece::getPieceType() const{
 int Piece::getSquare() const{
     return _square;
 }
+
+void Piece::setPieceType(int pieceType) {
+    _pieceType = pieceType;
+}
+
+void Piece::setSquare(int square) {
+    _square = square;
+}

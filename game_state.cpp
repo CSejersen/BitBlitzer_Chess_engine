@@ -217,3 +217,10 @@ void GameState::updateCastlingRights() {
     if(blackQueensRookCaptured())
         castlingRights[blackQueenSide] = false;
 }
+
+void GameState::printCastlingRights() {
+    std::cout << "castling Rights: " << std::endl;
+    for (int i = 0; i <= 3; i++) {
+        std::cout << "at index " << i << " = " << getCastlingRight(i) << std::endl;
+    }
+}

@@ -5,6 +5,7 @@
 #include "move.h"
 #include "board_constants.h"
 #include <list>
+#include <iostream>
 
 enum nCastleingRight{
     whiteKingSide,
@@ -48,6 +49,9 @@ public:
     U64 getEnPassantSquare() const;
     void setEnPassantSquare(int square);
     void resetEnPassantSquare();
+
+    // Debug
+    void printCastlingRights();
 
 
 private:

@@ -22,6 +22,8 @@ void MoveGenerator::generateMoves() {
     }
     else
         generateCastlesBlack();
+
+    pruneIllegalMoves();
 }
 void MoveGenerator::generateKnightMovesWhite() {
     U64 knights;
@@ -331,7 +333,7 @@ void MoveGenerator::generateCastlesWhite() {
 
     if(_state->getCastlingRight(whiteKingSide)){
         // checking if f1 and g1 are emptu
-        if((kingSideSquares & _board->getPieceSet(nWhite)) == 0){
+        if((kingSideSquares & (_board->getPieceSet(nWhite) | _board->getPieceSet(nBlack)))== 0){
             // checking if f1 or g1 is attacked
             U64 blackAttack = _atkTables->getAttacksBlack();
             if(blackAttack & kingSideSquares){
@@ -343,8 +345,8 @@ void MoveGenerator::generateCastlesWhite() {
         }
     }
     if(_state->getCastlingRight(whiteQueenSide)){
-        // checking if b1, c1 and d1 are emptu
-        if((queenSideBlockSquares & (_board->getPieceSet(nWhite))) == 0){
+        // checking if b1, c1 and d1 are empty
+        if((queenSideBlockSquares & (_board->getPieceSet(nWhite) | _board->getPieceSet(nBlack))) == 0){
             // checking if c1 or d1 is attacked
             U64 blackAttack = _atkTables->getAttacksBlack();
             if(blackAttack & queenSideSquares){
@@ -364,7 +366,7 @@ void MoveGenerator::generateCastlesBlack(){
 
     if(_state->getCastlingRight(blackKingSide)){
         // checking if f1 and g1 are emptu
-        if((kingSideSquares & _board->getPieceSet(nBlack)) == 0){
+        if((kingSideSquares & _board->getPieceSet(nBlack) | _board->getPieceSet(nWhite)) == 0){
             // checking if f1 or g1 is attacked
             U64 whiteAttack = _atkTables->getAttacksWhite();
             if(whiteAttack & kingSideSquares){
@@ -377,7 +379,7 @@ void MoveGenerator::generateCastlesBlack(){
     }
     if(_state->getCastlingRight(blackQueenSide)){
         // checking if b8, c8 and d8 are emptu
-        if((queenSideBlockSquares & _board->getPieceSet(nBlack)) == 0){
+        if((queenSideBlockSquares & _board->getPieceSet(nBlack) & _board->getPieceSet(nWhite)) == 0){
             // checking if c8 or d8 is attacked
             U64 whiteAttack = _atkTables->getAttacksWhite();
             if(whiteAttack & queenSideSquares){
@@ -426,7 +428,6 @@ void MoveGenerator::pruneIllegalMoves() {
             }
         }
         _board->undoMove();
-        BitBoard::printBB(_board->getPieceSet(nWhite) | _board->getPieceSet(nBlack));
     }
 
     // Captures
@@ -445,7 +446,19 @@ void MoveGenerator::pruneIllegalMoves() {
             }
         }
         _board->undoMove();
-        BitBoard::printBB(_board->getPieceSet(nWhite) | _board->getPieceSet(nBlack));
+    }
+}
+
+void MoveGenerator::printLegalMoves(){
+    std::cout << "Quiet moves: " << std::endl;
+    for (Move &move: legalMoves) {
+        std::cout << _board->indexToCoordinate(move.getStartSquare()) << "-" << _board->indexToCoordinate(move.getTargetSquare())
+                  << std::endl;
     }
 
+    std::cout << "Captures: " << std::endl;
+    for (Move &move: legalCaptures) {
+        std::cout << _board->indexToCoordinate(move.getStartSquare()) << "-"
+                  << _board->indexToCoordinate(move.getTargetSquare()) << std::endl;
+    }
 }
