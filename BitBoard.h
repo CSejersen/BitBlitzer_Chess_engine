@@ -1,7 +1,7 @@
 #pragma once
-#include "move.h"
+#include "Move.h"
 #include "board_constants.h"
-#include "game_state.h"
+#include "GameState.h"
 #include <string>
 #include <iostream>
 #include "bit_manipulation.h"

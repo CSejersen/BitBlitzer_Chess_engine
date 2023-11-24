@@ -1,7 +1,7 @@
 //
 // Created by Christian Sejersen on 21/11/2023.
 //
-#include "attack_tables.h"
+#include "AttackTables.h"
 
 AttackTables::AttackTables(BitBoard* board, GameState* state) {
 

@@ -1,9 +1,9 @@
 #pragma once
-#include "bitboards.h"
-#include "game_state.h"
-#include "attack_tables.h"
+#include "BitBoard.h"
+#include "GameState.h"
+#include "AttackTables.h"
 #include "bit_manipulation.h"
-#include "move.h"
+#include "Move.h"
 #include <list>
 
 class MoveGenerator {

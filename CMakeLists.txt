@@ -13,26 +13,28 @@ include_directories(${SDL2_INCLUDE_DIR})
 link_directories(${SDL2_LIB_DIR})
 
 add_executable(BBchess_engine main.cpp
-        bitboards.h
-        bitboards.cpp
-        move.h
-        move.cpp
+        BitBoard.h
+        BitBoard.cpp
+        Move.h
+        Move.cpp
         magics.h
-        fen_parser.cpp
-        fen_parser.h
-        attack_tables.cpp
-        attack_tables.h
-        game_state.cpp
-        game_state.h
+        FenParser.cpp
+        FenParser.h
+        AttackTables.cpp
+        AttackTables.h
+        GameState.cpp
+        GameState.h
         bit_manipulation.h
         bit_manipulation.cpp
         board_constants.h
         board_constants.cpp
-        move_generator.cpp
-        piece.cpp
-        piece.h
-        search.cpp
-        search.h
+        MoveGenerator.cpp
+        Piece.cpp
+        Piece.h
+        Search.cpp
+        Search.h
+        Perft.cpp
+        Perft.h
 )
 
 target_link_libraries(BBchess_engine ${SDL2_LIBRARY} )

@@ -2,7 +2,7 @@
 // Created by Christian Sejersen on 22/11/2023.
 //
 
-#include "piece.h"
+#include "Piece.h"
 
 Piece::Piece(int pieceType, int square) {
     _pieceType = pieceType;

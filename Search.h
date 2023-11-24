@@ -1,8 +1,8 @@
 #pragma once
-#include "bitboards.h"
-#include "move_generator.h"
-#include "attack_tables.h"
-#include "game_state.h"
+#include "BitBoard.h"
+#include "MoveGenerator.h"
+#include "AttackTables.h"
+#include "GameState.h"
 #include "board_constants.h"
 
 class Search {

@@ -1,4 +1,4 @@
-#include "bitboards.h"
+#include "BitBoard.h"
 
 // Bitboards constructor
 BitBoard::BitBoard(GameState* state){
@@ -21,7 +21,6 @@ void BitBoard::placePiece(int pieceType, int square){
         pieceBB[nBlack] |= placementMask;
     }
 }
-
 
 // prints a nice view of bitboard for a given Piece.
 void BitBoard::printBB(const U64& bb) {
@@ -67,10 +66,6 @@ void BitBoard::makeMove(Move& move) {
     // Checking for queens side castling
     if(flag == nQueenCastle)
         handleCastlesQueenSide();
-
-
-
-
 
     // Looping over all pieceTypes to find pieceToMove.
     for(int pieceType = nWhitePawn; pieceType <= nBlackKing; pieceType++){

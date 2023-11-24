@@ -1,4 +1,4 @@
-#include "search.h"
+#include "Search.h"
 
 Search::Search(BitBoard* board, MoveGenerator *generator, AttackTables *atkTables,
                GameState *state) {

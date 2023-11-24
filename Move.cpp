@@ -1,4 +1,4 @@
-#include "move.h"
+#include "Move.h"
 #include <iostream>
 
 Move::Move(U16 startSquare, U16 targetSquare, U16 flags) {

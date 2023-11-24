@@ -1,4 +1,4 @@
-#include "game_state.h"
+#include "GameState.h"
 
 GameState::GameState() = default;
 

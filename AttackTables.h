@@ -2,9 +2,9 @@
 // Created by Christian Sejersen on 21/11/2023.
 //
 #pragma once
-#include "bitboards.h"
+#include "BitBoard.h"
 #include "magics.h"
-#include "game_state.h"
+#include "GameState.h"
 #include "bit_manipulation.h"
 #include "board_constants.h"
 

@@ -2,7 +2,7 @@
 // Created by Christian Sejersen on 21/11/2023.
 //
 
-#include "move_generator.h"
+#include "MoveGenerator.h"
 MoveGenerator::MoveGenerator(BitBoard *board, GameState *state, AttackTables *attackTables) {
     _board = board;
     _state = state;

@@ -3,8 +3,8 @@
 //
 #pragma once
 #include <string>
-#include "bitboards.h"
-#include "game_state.h"
+#include "BitBoard.h"
+#include "GameState.h"
 
 class FenParser {
 public:

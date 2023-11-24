@@ -1,4 +1,4 @@
-#include "fen_parser.h"
+#include "FenParser.h"
 FenParser::FenParser(BitBoard* board,GameState* state) {
     _board = board;
     _state = state;

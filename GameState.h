@@ -2,7 +2,7 @@
 // Created by Christian Sejersen on 21/11/2023.
 //
 #pragma once
-#include "move.h"
+#include "Move.h"
 #include "board_constants.h"
 #include <list>
 #include <iostream>
