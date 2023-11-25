@@ -5,6 +5,7 @@
 #include "bit_manipulation.h"
 #include "Move.h"
 #include <list>
+#include <vector>
 
 class MoveGenerator {
 
@@ -14,17 +15,20 @@ public:
     GameState* _state;
     AttackTables* _atkTables;
 
+    void generateMoves(std::vector<Move>&);
     void generateMoves();
-    std::list<Move> legalMoves;
-    std::list<Move> legalCaptures;
+    std::vector<Move> _legalMoves;
+    std::vector<Move> _legalCaptures;
 
     // Debug functions
     void printLegalMoves();
+    U64 countNodes(int depth);
 
 
 private:
     // generate pseudo-legal moves
-    void generateKnightMovesWhite();
+
+    void generateKnightMovesWhite() ;
     void generateBishopMoves();
     void generateRookMoves();
     void generateKingMoves();
@@ -44,8 +48,8 @@ private:
     bool blackKingInCheck();
 
     // Pseudo-legal moves
-    std::list<Move> pseudoLegal;
-    std::list<Move> pseudoLegalCapture;
+    std::vector<Move> pseudoLegal;
+    std::vector<Move> pseudoLegalCapture;
 
 
 

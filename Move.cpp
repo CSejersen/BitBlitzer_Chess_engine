@@ -13,3 +13,6 @@ Piece Move::getCapturedPiece() const {return _capturedPiece;}
 void Move::setCapturedPiece(Piece piece) {
     _capturedPiece = piece;
 }
+
+Move::~Move() = default;
+

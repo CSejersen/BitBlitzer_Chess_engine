@@ -28,6 +28,9 @@ public:
     Piece getCapturedPiece() const;
     void setCapturedPiece(Piece);
 
+    ~Move();
+
+
 private:
     U16 _move;
     Piece _capturedPiece;

@@ -8,21 +8,26 @@
 #include "FenParser.h"
 #include "Search.h"
 
+
+
+
 int main(int argc, char* argv[]) {
 
-    GameState state;
-    BitBoard board(&state);
-    AttackTables atkTables(&board, &state);
-    MoveGenerator moveGenerator(&board, &state, &atkTables);
-    FenParser fenParser(&board, &state);
+    auto* state = new GameState;
+    auto* board = new BitBoard(state);
+    auto* atkTables = new AttackTables(board, state);
+    auto* moveGenerator = new MoveGenerator(board, state, atkTables);
+
+    FenParser fenParser(board, state);
 
     // Load position and print board
-    fenParser.loadFenPosition("r1bqkbnr/ppp2ppp/2np4/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1");
-    BitBoard::printBB(board.getPieceSet(nBlack) | board.getPieceSet(nWhite));
+    fenParser.loadFenPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    BitBoard::printBB(board->getPieceSet(nBlack) | board->getPieceSet(nWhite));
 
-    moveGenerator.generateMoves();
-    moveGenerator.printLegalMoves();
-
-    state.printCastlingRights();
-
+    // counting nodes
+    int depth;
+    std::cout << "Input depth: ";
+    std::cin >> depth;
+    U64 nodes = moveGenerator->countNodes(depth);
+    std::cout << "Search at depth " << depth << " hit " << nodes << " nodes" << std::endl;
 }

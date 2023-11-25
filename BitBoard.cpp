@@ -1,8 +1,11 @@
 #include "BitBoard.h"
 
+U64 BitBoard::pieceBB[];
+
 // Bitboards constructor
 BitBoard::BitBoard(GameState* state){
     _state = state;
+
 }
 
 // returns the bitboard for the requested Piece
@@ -74,7 +77,7 @@ void BitBoard::makeMove(Move& move) {
             continue;
         }
         // Finding Piece on starting _square
-        if(pieceBB[pieceType] & 1ULL << startingSquare){
+        if(BitBoard::pieceBB[pieceType] & 1ULL << startingSquare){
             pieceToMove = pieceType;
             break;
         }
@@ -104,7 +107,9 @@ void BitBoard::makeMove(Move& move) {
     _state->passTurn();
     _state->addMoveToHistory(move);
     _state->updateCastlingRights();
+
 }
+
 
 void BitBoard::handleCaptureFlag(Move& move) {
     int targetSquare = move.getTargetSquare();
@@ -115,7 +120,13 @@ void BitBoard::handleCaptureFlag(Move& move) {
     if (_state->getWhiteToMove()) {
         for (int piece = nBlackPawn; piece <= nBlackKing; piece++) {
             if (pieceBB[piece] & 1ULL << targetSquare) {
-                pieceToCapture.setPieceType(piece);
+                try{
+                    pieceToCapture.setPieceType(piece);
+                }
+                catch (std::invalid_argument& e){
+                    std::cerr << e.what() << std::endl;
+                }
+
                 break;
             }
         }

@@ -23,9 +23,9 @@ public:
     // debug functions
     static void printBB(const U64& bb) ;
 
+    static U64 pieceBB[14];
 private:
     // bitboards containing current position
-    U64 pieceBB[14];
 
     // flag handlers for makeMove()
     void handleEnPassantFlag(Move&);
