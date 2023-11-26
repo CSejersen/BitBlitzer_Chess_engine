@@ -33,6 +33,8 @@ add_executable(BBchess_engine main.cpp
         Piece.h
         Search.cpp
         Search.h
+        move_new.h
+        move_new.cpp
 )
 
 target_link_libraries(BBchess_engine ${SDL2_LIBRARY} )

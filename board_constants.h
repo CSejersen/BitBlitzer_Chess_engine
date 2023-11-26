@@ -35,6 +35,7 @@ enum enumPieceBB
     nBlackKing,
 };
 
+
 // rook relevant blocker bits
 extern const int rookRelevantBits[64];
 // bishop relevant blocker bits

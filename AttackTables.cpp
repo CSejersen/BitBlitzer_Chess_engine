@@ -292,14 +292,14 @@ U64 AttackTables::getAttacksCurrentTurn() const {
         return getAttacksBlack();
 }
 U64 AttackTables::getRookAttacks(int square) const {
-    U64 blockers = _board->getPieceSet(nWhite) | _board->getPieceSet(nBlack);
+    U64 blockers = _board->getAllPieces();
     blockers &= rookAttackMask[square];
     U64 magicIndex = (blockers * rookMagics[square]) >> (64 - rookRelevantBits[square]);
     return rookAttacks[square][magicIndex];
 }
 
 U64 AttackTables::getBishopAttacks(int square) const {
-    U64 blockers = _board->getPieceSet(nWhite) | _board->getPieceSet(nBlack);
+    U64 blockers = _board->getAllPieces();
     blockers &= bishopAttackMask[square];
     U64 magicIndex = (blockers * bishopMagics[square]) >> (64 - bishopRelevantBits[square]);
 

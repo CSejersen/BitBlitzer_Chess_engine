@@ -1,6 +1,5 @@
 #include "BitBoard.h"
 
-U64 BitBoard::pieceBB[];
 
 // Bitboards constructor
 BitBoard::BitBoard(GameState* state){
@@ -48,44 +47,39 @@ void BitBoard::clearBoard(){
     }
 }
 
-void BitBoard::makeMove(Move& move) {
-    int startingSquare = move.getStartSquare();
-    int targetSquare = move.getTargetSquare();
-    int flag = move.getFlag();
-    int pieceToMove = 0;
+void BitBoard::makeMove(int& move) {
+    uint8_t startingSquare = getMoveStart(move);
+    uint8_t targetSquare = getMoveTarget(move);
+    uint8_t piece = getMovePiece(move);
+    uint8_t promotion = getMovePromotion(move);
+    bool doublePush = getMoveDoublePush(move);
+    bool capture = getMoveCapture(move);
+    bool enPassant = getMoveEnPassant(move);
+    bool castling = getMoveCastling(move);
 
-    // checking for capture
-    if(flag == nCapture || flag == nRookPromoCapture || flag == nBishopPromoCapture || flag == nKnightPromoCapture || flag == nQueenPromoCapture)
+
+    if(capture){
         handleCaptureFlag(move);
+    }
 
     // Checking for En Passant
-    if(flag == nEnPassantCapture)
+    if(enPassant) {
         handleEnPassantFlag(move);
+    }
 
     // Checking for king side castling
-    if(flag == nKingCastle)
+    if(castling && (targetSquare == G1 || targetSquare == G8)) {
         handleCastlesKingSide();
+    }
 
     // Checking for queens side castling
-    if(flag == nQueenCastle)
+    if(castling && (targetSquare == C1 || targetSquare == C8)) {
         handleCastlesQueenSide();
-
-    // Looping over all pieceTypes to find pieceToMove.
-    for(int pieceType = nWhitePawn; pieceType <= nBlackKing; pieceType++){
-        // skipping _board with all black pieces (all white _board already skipped by starting loop at nWhitePawn);
-        if(pieceType == nBlack){
-            continue;
-        }
-        // Finding Piece on starting _square
-        if(BitBoard::pieceBB[pieceType] & 1ULL << startingSquare){
-            pieceToMove = pieceType;
-            break;
-        }
     }
 
     // making move on the _board
-    pieceBB[pieceToMove] &= ~(1ULL << startingSquare); // removing Piece from starting square
-    placePiece(pieceToMove,targetSquare);
+    pieceBB[piece] &= ~(1ULL << startingSquare); // removing Piece from starting square
+    placePiece(piece,targetSquare);
     if(_state->getWhiteToMove()){
         pieceBB[nWhite] &= ~(1ULL << startingSquare);
     }
@@ -94,10 +88,9 @@ void BitBoard::makeMove(Move& move) {
     }
 
 
-
     // reset En-Passant square and set a new one if double pawn push was played.
     _state->resetEnPassantSquare();
-    if(flag == nDoublePawnPush){
+    if(doublePush){
         if(_state->getWhiteToMove())
             _state->setEnPassantSquare(targetSquare - 8);
         else
@@ -111,42 +104,31 @@ void BitBoard::makeMove(Move& move) {
 }
 
 
-void BitBoard::handleCaptureFlag(Move& move) {
-    int targetSquare = move.getTargetSquare();
+void BitBoard::handleCaptureFlag(int& move) {
+    int targetSquare = getMoveTarget(move);
     Piece pieceToCapture;
+    pieceToCapture.setSquare(targetSquare);
 
-    // Checking for capture
     // searching for Piece to capture
     if (_state->getWhiteToMove()) {
         for (int piece = nBlackPawn; piece <= nBlackKing; piece++) {
-            if (pieceBB[piece] & 1ULL << targetSquare) {
-                try{
-                    pieceToCapture.setPieceType(piece);
-                }
-                catch (std::invalid_argument& e){
-                    std::cerr << e.what() << std::endl;
-                }
+            pieceToCapture.setPieceType(piece);
 
+            if (pieceBB[piece] & (1ULL << targetSquare)) {
                 break;
             }
         }
-    } else {
+    }
+    else {
         for (int piece = nWhitePawn; piece <= nWhiteKing; piece++) {
-            if (pieceBB[piece] & 1ULL << targetSquare) {
+            if (pieceBB[piece] & (1ULL << targetSquare)) {
                 pieceToCapture.setPieceType(piece);
                 break;
             }
         }
-        pieceToCapture.setSquare(targetSquare);
-        move.setCapturedPiece(pieceToCapture);
-
-
     }
-
     // removing captured Piece from _board
-    pieceBB[pieceToCapture.getPieceType()] &= ~1ULL << targetSquare;
-    // storing capture piece in move member attribute
-    move.setCapturedPiece(pieceToCapture);
+    pieceBB[pieceToCapture.getPieceType()] &= ~(1ULL << targetSquare);
 
     // removing from nWhite and nBlack pieceBB's
     if(_state->getWhiteToMove())
@@ -155,9 +137,9 @@ void BitBoard::handleCaptureFlag(Move& move) {
         pieceBB[nWhite] &= ~(1ULL << targetSquare);
 }
 
-void BitBoard::handleEnPassantFlag(Move& move) {
-    int startingSquare = move.getStartSquare();
-    int targetSquare = move.getTargetSquare();
+void BitBoard::handleEnPassantFlag(int& move) {
+    int startingSquare = getMoveStart(move);
+    int targetSquare = getMoveTarget(move);
     int pieceToCapture = 0;
     // searching for Piece to capture
     if (_state->getWhiteToMove()) {
@@ -165,15 +147,11 @@ void BitBoard::handleEnPassantFlag(Move& move) {
         // removing captured Piece from _board
         pieceBB[nBlackPawn] &= ~(1ULL << pieceToCapture);
         pieceBB[nBlack] &= ~(1ULL << pieceToCapture);
-        // storing captured pawn in move member attribute
-        move.setCapturedPiece(Piece(nBlackPawn, pieceToCapture));
     } else {
         pieceToCapture = getLSB(getPieceSet(nWhitePawn) & _state->getEnPassantSquare() << 8);
         // removing captured Piece from _board
         pieceBB[nWhitePawn] &= ~1ULL << pieceToCapture;
         pieceBB[nWhite] &= ~1ULL << pieceToCapture;
-        // storing captured pawn in move member attribute
-        move.setCapturedPiece(Piece(nWhitePawn, pieceToCapture));
     }
 }
 
@@ -253,41 +231,23 @@ void BitBoard::undoMove() {
     // Give turn back
     _state->passTurn();
 
-    Move move = _state->getLastMove();
-    int startSquare = move.getStartSquare();
-    int targetSquare = move.getTargetSquare();
-    int flag = move.getFlag();
-    Piece capturedPiece;
-    int pieceToMove = 0;
+    int move = _state->getLastMove();
+    uint8_t startSquare = getMoveStart(move);
+    uint8_t targetSquare = getMoveTarget(move);
+    uint8_t pieceToMove = getMovePiece(move);
+    uint8_t capture = getMoveCapture(move);
 
-    // finding moved piece
-    for(int pieceType = nWhitePawn; pieceType <= nBlackKing; pieceType++){
-        if(pieceType == nBlack){
-            continue;
-        }
-        if(pieceBB[pieceType] & 1ULL << targetSquare){
-            pieceToMove = pieceType;
-        }
-        if(pieceToMove){
-            break;
-        }
-    }
     // Undoing move on the _board
     pieceBB[pieceToMove] &= ~(1ULL << targetSquare);
-    placePiece(pieceToMove,startSquare);
-    if(_state->getWhiteToMove()){
+    placePiece(pieceToMove, startSquare);
+    if (_state->getWhiteToMove()) {
         pieceBB[nWhite] &= ~(1ULL << targetSquare);
-    }
-    else{
+    } else {
         pieceBB[nBlack] &= ~(1ULL << targetSquare);
     }
 
-
-    if(flag == nCapture || flag == nEnPassantCapture || flag == nKnightPromoCapture || flag == nBishopPromoCapture || flag == nRookPromoCapture || flag == nQueenPromoCapture){
-
-        capturedPiece = move.getCapturedPiece();
-        // replacing captured piece
-        placePiece(capturedPiece.getPieceType(),capturedPiece.getSquare());
+    if (capture){
+    // replacing captured piece
     }
     // passing turn back
     _state->deleteLastMoveFromHistory();
@@ -366,6 +326,10 @@ void BitBoard::handleCastlesQueenSide() {
         // Placing rook on F8
         placePiece(nWhiteRook,D8);
     }
+}
+
+U64 BitBoard::getAllPieces() const {
+    return pieceBB[nWhite] | pieceBB[nBlack];
 }
 
 

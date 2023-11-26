@@ -4,6 +4,7 @@
 #include "AttackTables.h"
 #include "bit_manipulation.h"
 #include "Move.h"
+#include "move_new.h"
 #include <list>
 #include <vector>
 
@@ -15,14 +16,15 @@ public:
     GameState* _state;
     AttackTables* _atkTables;
 
-    void generateMoves(std::vector<Move>&);
+    void generateMoves(std::vector<int>&);
     void generateMoves();
-    std::vector<Move> _legalMoves;
-    std::vector<Move> _legalCaptures;
+    std::vector<int> _legalMoves;
+    std::vector<int> _legalCaptures;
 
     // Debug functions
     void printLegalMoves();
     U64 countNodes(int depth);
+    void perft(int maxDepth);
 
 
 private:
@@ -44,12 +46,14 @@ private:
 
     // utility
     bool isCapture(int targetSquare) const;
-    bool whiteKingInCheck();
-    bool blackKingInCheck();
+    bool whiteKingInCheck() const;
+    bool blackKingInCheck() const;
+
+    // Debug
 
     // Pseudo-legal moves
-    std::vector<Move> pseudoLegal;
-    std::vector<Move> pseudoLegalCapture;
+    std::vector<int> pseudoLegal;
+    std::vector<int> pseudoLegalCapture;
 
 
 

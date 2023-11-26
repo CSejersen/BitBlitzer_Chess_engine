@@ -54,8 +54,8 @@ void GameState::passTurn() {
 
 bool GameState::whiteKingsRookCaptured() const{
     bool captured = false;
-    for(auto& it: gameHistory ){
-        if(it.getTargetSquare() == H1){
+    for(auto& move: gameHistory ){
+        if(getMoveTarget(move) == H1){
             captured = true;
             break;
         }
@@ -64,8 +64,8 @@ bool GameState::whiteKingsRookCaptured() const{
 }
 bool GameState::whiteQueensRookCaptured() const{
     bool captured = false;
-    for(auto& it: gameHistory ){
-        if(it.getTargetSquare() == A1){
+    for(auto& move: gameHistory ){
+        if(getMoveTarget(move) == A1){
             captured = true;
             break;
         }
@@ -74,8 +74,8 @@ bool GameState::whiteQueensRookCaptured() const{
 }
 bool GameState::blackKingsRookCaptured() const{
     bool captured = false;
-    for(auto& it: gameHistory ){
-        if(it.getTargetSquare() == H8){
+    for(const int& move: gameHistory ){
+        if(getMoveTarget(move) == H8){
             captured = true;
             break;
         }
@@ -84,8 +84,8 @@ bool GameState::blackKingsRookCaptured() const{
 }
 bool GameState::blackQueensRookCaptured() const{
     bool captured = false;
-    for(auto& it: gameHistory ){
-        if(it.getTargetSquare() == A8){
+    for(const int& move: gameHistory){
+        if(getMoveTarget(move) == A8){
             captured = true;
             break;
         }
@@ -95,8 +95,8 @@ bool GameState::blackQueensRookCaptured() const{
 
 bool GameState::whiteKingMoved() const {
     bool moved = false;
-    for(auto& it: gameHistory ){
-        if(it.getStartSquare() == E1){
+    for(auto& move: gameHistory ){
+        if(getMoveStart(move) == E1){
             moved = true;
             break;
         }
@@ -106,8 +106,8 @@ bool GameState::whiteKingMoved() const {
 
 bool GameState::blackKingMoved() const {
     bool moved = false;
-    for(auto& it: gameHistory ){
-        if(it.getStartSquare() == E8){
+    for(auto& move: gameHistory ){
+        if(getMoveStart(move) == E8){
             moved = true;
             break;
         }
@@ -117,8 +117,8 @@ bool GameState::blackKingMoved() const {
 
 bool GameState::blackKingsRookMoved() const{
     bool moved = false;
-    for(auto& it: gameHistory ){
-        if(it.getStartSquare() == H8){
+    for(auto& move: gameHistory ){
+        if(getMoveStart(move) == H8){
             moved = true;
             break;
         }
@@ -128,8 +128,8 @@ bool GameState::blackKingsRookMoved() const{
 }
 bool GameState::blackQueensRookMoved() const{
     bool moved = false;
-    for(auto& it: gameHistory ){
-        if(it.getStartSquare() == A8){
+    for(auto& move: gameHistory ){
+        if(getMoveStart(move) == A8){
             moved = true;
             break;
         }
@@ -138,8 +138,8 @@ bool GameState::blackQueensRookMoved() const{
 }
 bool GameState::whiteKingsRookMoved() const{
     bool moved = false;
-    for(auto& it: gameHistory ){
-        if(it.getStartSquare() == H1){
+    for(auto& move: gameHistory ){
+        if(getMoveStart(move) == H1){
             moved = true;
             break;
         }
@@ -148,8 +148,8 @@ bool GameState::whiteKingsRookMoved() const{
 }
 bool GameState::whiteQueensRookMoved() const{
     bool moved = false;
-    for(auto& it: gameHistory ){
-        if(it.getStartSquare() == A1){
+    for(auto& move: gameHistory ){
+        if(getMoveStart(move) == A1){
             moved = true;
             break;
         }
@@ -157,11 +157,11 @@ bool GameState::whiteQueensRookMoved() const{
     return moved;
 }
 
-void GameState::addMoveToHistory(Move move) {
-    gameHistory.emplace_back(move);
+void GameState::addMoveToHistory(int move) {
+    gameHistory.push_back(move);
 }
 
-Move GameState::getLastMove(){
+int GameState::getLastMove(){
     auto it = gameHistory.end();
     it --;
     return *it;

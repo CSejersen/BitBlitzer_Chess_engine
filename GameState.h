@@ -3,9 +3,11 @@
 //
 #pragma once
 #include "Move.h"
+#include "move_new.h"
 #include "board_constants.h"
 #include <list>
 #include <iostream>
+#include <vector>
 
 enum nCastleingRight{
     whiteKingSide,
@@ -19,8 +21,8 @@ public:
     GameState();
     //Move related
     bool getWhiteToMove() const;
-    void addMoveToHistory(Move);
-    Move getLastMove();
+    void addMoveToHistory(int);
+    int getLastMove();
     void deleteLastMoveFromHistory();
     void passTurn();
 
@@ -62,9 +64,9 @@ private:
     int moveNum{};
     U64 enPassantSquare{};
     bool castlingRights[4]{};
-    std::list<Move> gameHistory;
-    bool whiteInCheck;
-    bool blackInCheck;
+    std::vector<int> gameHistory;
+//    bool whiteInCheck;
+//    bool blackInCheck;
 };
 
 
