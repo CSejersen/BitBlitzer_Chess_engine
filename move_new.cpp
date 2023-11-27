@@ -1,14 +1,14 @@
 #include "move_new.h"
-uint8_t getMoveStart(int move){
+int getMoveStart(int move){
     return (move & 0x3f);
 }
-uint8_t getMoveTarget(int move){
+int getMoveTarget(int move){
     return((move & 0xfc0) >> 6);
 }
-uint8_t getMovePiece(int move){
+int getMovePiece(int move){
     return ((move & 0xf000) >> 12);
 }
-uint8_t getMovePromotion(int move){
+int getMovePromotion(int move){
     return ((move & 0xf0000) >> 16);
 }
 bool getMoveCapture(int move) {
@@ -25,4 +25,15 @@ bool getMoveCastling(int move){
 }
 int encodeMove(int start, int target, int piece, int promotion, int capture, int doublePush,int enPassant, int castling ){
     return (start) | (target << 6) |(piece << 12) |(promotion << 16) | (capture << 20) |(doublePush << 21) | (enPassant << 22) | (castling << 23);
+}
+
+void printMove(int move) {
+    std::cout << "start: " << getMoveStart(move) << std::endl;
+    std::cout << "target: " << getMoveTarget(move) << std::endl;
+    std::cout << "Piece: " << getMovePiece(move) << std::endl;
+    std::cout << "Promotion: " << getMovePromotion(move) << std::endl;
+    std::cout << "Capture: " << getMoveCapture(move) << std::endl;
+    std::cout << "Double push: " << getMoveDoublePush(move) << std::endl;
+    std::cout << "En Passant: " << getMoveEnPassant(move) << std::endl;
+    std::cout << "Castling: " << getMoveCastling(move) << std::endl;
 }

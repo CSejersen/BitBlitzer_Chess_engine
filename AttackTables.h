@@ -4,15 +4,15 @@
 #pragma once
 #include "BitBoard.h"
 #include "magics.h"
-#include "GameState.h"
+#include "CurrentPosition.h"
 #include "bit_manipulation.h"
 #include "board_constants.h"
 
 class AttackTables {
 public:
-    AttackTables(BitBoard* board, GameState* state);
+    AttackTables(BitBoard* board, CurrentPosition* state);
     BitBoard* _board;
-    GameState* _state;
+    CurrentPosition* _state;
     // attack-map getters
     U64 getAttacksCurrentTurn() const;
     U64 getAttacksWhite() const; // returns all possible attacks for color to move.

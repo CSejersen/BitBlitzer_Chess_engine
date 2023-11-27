@@ -4,15 +4,15 @@
 #pragma once
 #include <string>
 #include "BitBoard.h"
-#include "GameState.h"
+#include "CurrentPosition.h"
 
 class FenParser {
 public:
-    FenParser(BitBoard*,GameState*);
+    FenParser(BitBoard*, CurrentPosition*);
     void loadFenPosition(const std::string& fenString);
     void loadStartingPosition();
     BitBoard* _board;
-    GameState* _state;
+    CurrentPosition* _state;
 private:
     // FEN parsing utility functions
     int fenParsePieces(std::string& fen); // returns index number reached in fen-string

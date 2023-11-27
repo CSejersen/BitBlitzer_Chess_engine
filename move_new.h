@@ -1,5 +1,6 @@
 #pragma once
 #include "board_constants.h"
+#include <iostream>
 
 /*
           binary move bits                               hexidecimal
@@ -16,11 +17,13 @@
 
 int encodeMove(int start, int target, int piece, int promotion, int capture, int doublePush, int enPassant, int castling );
 // extract source square
-uint8_t getMoveStart(int move);
-uint8_t getMoveTarget(int move);
-uint8_t getMovePiece(int move);
-uint8_t getMovePromotion(int move);
+int getMoveStart(int move);
+int getMoveTarget(int move);
+int getMovePiece(int move);
+int getMovePromotion(int move);
 bool getMoveCapture(int move);
 bool getMoveDoublePush(int move);
 bool getMoveEnPassant(int move);
 bool getMoveCastling(int move);
+
+void printMove(int move);

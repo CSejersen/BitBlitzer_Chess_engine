@@ -2,7 +2,7 @@
 #include "BitBoard.h"
 #include "MoveGenerator.h"
 #include "AttackTables.h"
-#include "GameState.h"
+#include "CurrentPosition.h"
 #include "board_constants.h"
 
 class Search {
@@ -10,9 +10,9 @@ public:
     BitBoard* _board;
     MoveGenerator* _generator;
     AttackTables* _atkTables;
-    GameState* _state;
+    CurrentPosition* _state;
 
-    Search(BitBoard* board, MoveGenerator* generator, AttackTables* atkTables, GameState* state);
+    Search(BitBoard* board, MoveGenerator* generator, AttackTables* atkTables, CurrentPosition* state);
 
 private:
 };

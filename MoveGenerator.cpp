@@ -3,7 +3,7 @@
 //
 
 #include "MoveGenerator.h"
-MoveGenerator::MoveGenerator(BitBoard *board, GameState *state, AttackTables *attackTables) {
+MoveGenerator::MoveGenerator(BitBoard *board, CurrentPosition *state, AttackTables *attackTables) {
     _board = board;
     _state = state;
     _atkTables = attackTables;
@@ -11,8 +11,8 @@ MoveGenerator::MoveGenerator(BitBoard *board, GameState *state, AttackTables *at
 void MoveGenerator::generateMoves(std::vector<int>& moves) {
     pseudoLegal.clear();
     pseudoLegalCapture.clear();
-    _legalMoves.clear();
-    _legalCaptures.clear();
+    pseudoLegal.clear();
+    pseudoLegalCapture.clear();
 
     generatePawnAdvances();
     generatePawnCaptures();
@@ -27,12 +27,10 @@ void MoveGenerator::generateMoves(std::vector<int>& moves) {
     }
     else
         generateCastlesBlack();
-    pruneIllegalMoves();
 
-
-    moves.reserve( _legalMoves.size() + _legalCaptures.size() ); // preallocate memory
-    moves.insert( moves.end(), _legalCaptures.begin(), _legalCaptures.end() );
-    moves.insert( moves.end(), _legalMoves.begin(), _legalMoves.end() );
+    moves.reserve( pseudoLegal.size() + pseudoLegalCapture.size() ); // preallocate memory
+    moves.insert( moves.end(), pseudoLegalCapture.begin(), pseudoLegalCapture.end() );
+    moves.insert( moves.end(), pseudoLegal.begin(), pseudoLegal.end() );
 }
 void MoveGenerator::generateKnightMovesWhite() {
     U64 knights;
@@ -409,7 +407,7 @@ void MoveGenerator::generateCastlesBlack(){
         if((queenSideBlockSquares & _board->getAllPieces()) == 0){
             // checking if c8 or d8 is attacked
             if(!(whiteAttack & queenSideSquares)){
-                int move = encodeMove(E8,C3,nBlackKing,0,0,0,0,1);
+                int move = encodeMove(E8,C8,nBlackKing,0,0,0,0,1);
                 pseudoLegal.push_back(move);
             }
         }
@@ -435,52 +433,14 @@ bool MoveGenerator::blackKingInCheck() const {
     return(_atkTables->getAttacksWhite() & _board->getPieceSet(nBlackKing));
 }
 
-void MoveGenerator::pruneIllegalMoves() {
-    // non captures
-    for(int& move:pseudoLegal){
-        // for every move
-        if(_state->getWhiteToMove()){
-            _board->makeMove(move);
-            if(!whiteKingInCheck()){
-                _legalMoves.emplace_back(move);
-            }
-        }
-        else{
-            _board->makeMove(move);
-            if(!blackKingInCheck()){
-                _legalMoves.emplace_back(move);
-            }
-        }
-        _board->undoMove();
-    }
-
-    // Captures
-    for(int& move:pseudoLegalCapture){
-        // for every move
-        if(_state->getWhiteToMove()){
-            _board->makeMove(move);
-            if(!whiteKingInCheck()){
-                _legalCaptures.emplace_back(move);
-            }
-        }
-        else{
-            _board->makeMove(move);
-            if(!blackKingInCheck()){
-                _legalCaptures.emplace_back(move);
-            }
-        }
-        _board->undoMove();
-    }
-}
-
 void MoveGenerator::printLegalMoves(){
     std::cout << "Quiet moves: " << std::endl;
-    for (int &move: _legalMoves) {
+    for (int &move: pseudoLegal) {
         std::cout << _board->indexToCoordinate(getMoveStart(move)) << "-" << _board->indexToCoordinate(getMoveTarget(move)) << std::endl;
     }
 
     std::cout << "Captures: " << std::endl;
-    for (int &move: _legalCaptures) {
+    for (int &move: pseudoLegalCapture) {
         std::cout << _board->indexToCoordinate(getMoveStart(move)) << "-"
                   << _board->indexToCoordinate(getMoveTarget(move)) << std::endl;
     }
@@ -494,9 +454,9 @@ U64 MoveGenerator::countNodes(int depth) {
     generateMoves(moves);
 
     for(int move : moves){
-        _board->makeMove(move);
+        _state->makeMove(move);
         nodes += countNodes(depth - 1);
-        _board->undoMove();
+        _state->undoMove();
     }
     return nodes;
 }
@@ -508,35 +468,31 @@ void MoveGenerator::perft(int depth){
     U64 totalNodes = 0;
 
     for(int& move : moves){
-        _board->makeMove(move);
+        _state->makeMove(move);
         nodes = countNodes(depth - 1);
         totalNodes += nodes;
-        std::cout << _board->indexToCoordinate(getMoveStart(move)) << "-" << _board->indexToCoordinate(getMoveStart(move)) << ": " << nodes << " nodes" << std::endl;
-        _board->undoMove();
+        std::cout << _board->indexToCoordinate(getMoveStart(move)) << "-" << _board->indexToCoordinate(getMoveTarget(move)) << ": " << nodes << " nodes" << std::endl;
+        _state->undoMove();
     }
     std::cout << "\ntotal nodes: " << totalNodes << std::endl;
 }
 
-
 void MoveGenerator::generateMoves() {
     pseudoLegal.clear();
     pseudoLegalCapture.clear();
-    _legalMoves.clear();
-    _legalCaptures.clear();
 
+    generatePawnAdvances();
+    generatePawnCaptures();
     generateKnightMovesWhite();
     generateBishopMoves();
     generateRookMoves();
     generateKingMoves();
     generateQueenMoves();
-    generatePawnAdvances();
-    generatePawnCaptures();
     generateEnPassant();
     if (_state->getWhiteToMove()) {
         generateCastlesWhite();
     } else
         generateCastlesBlack();
-    pruneIllegalMoves();
 
 }
 

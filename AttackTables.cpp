@@ -3,7 +3,7 @@
 //
 #include "AttackTables.h"
 
-AttackTables::AttackTables(BitBoard* board, GameState* state) {
+AttackTables::AttackTables(BitBoard* board, CurrentPosition* state) {
 
     generateRookAttackMasks();
     generateBishopAttackMasks();

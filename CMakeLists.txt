@@ -22,8 +22,8 @@ add_executable(BBchess_engine main.cpp
         FenParser.h
         AttackTables.cpp
         AttackTables.h
-        GameState.cpp
-        GameState.h
+        CurrentPosition.cpp
+        CurrentPosition.h
         bit_manipulation.h
         bit_manipulation.cpp
         board_constants.h
