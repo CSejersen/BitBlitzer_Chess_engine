@@ -1,4 +1,4 @@
-#include "move_new.h"
+#include "move.h"
 int getMoveStart(int move){
     return (move & 0x3f);
 }

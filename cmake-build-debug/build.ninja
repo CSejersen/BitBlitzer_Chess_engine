@@ -63,13 +63,6 @@ build CMakeFiles/BBchess_engine.dir/BitBoard.cpp.o: CXX_COMPILER__BBchess_engine
   OBJECT_DIR = CMakeFiles/BBchess_engine.dir
   OBJECT_FILE_DIR = CMakeFiles/BBchess_engine.dir
 
-build CMakeFiles/BBchess_engine.dir/Move.cpp.o: CXX_COMPILER__BBchess_engine_unscanned_Debug /Users/sejersen/dev/BBchess-engine/Move.cpp || cmake_object_order_depends_target_BBchess_engine
-  DEP_FILE = CMakeFiles/BBchess_engine.dir/Move.cpp.o.d
-  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -fcolor-diagnostics
-  INCLUDES = -I/Library/Frameworks/SDL2.framework/Headers
-  OBJECT_DIR = CMakeFiles/BBchess_engine.dir
-  OBJECT_FILE_DIR = CMakeFiles/BBchess_engine.dir
-
 build CMakeFiles/BBchess_engine.dir/FenParser.cpp.o: CXX_COMPILER__BBchess_engine_unscanned_Debug /Users/sejersen/dev/BBchess-engine/FenParser.cpp || cmake_object_order_depends_target_BBchess_engine
   DEP_FILE = CMakeFiles/BBchess_engine.dir/FenParser.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -fcolor-diagnostics
@@ -84,8 +77,8 @@ build CMakeFiles/BBchess_engine.dir/AttackTables.cpp.o: CXX_COMPILER__BBchess_en
   OBJECT_DIR = CMakeFiles/BBchess_engine.dir
   OBJECT_FILE_DIR = CMakeFiles/BBchess_engine.dir
 
-build CMakeFiles/BBchess_engine.dir/CurrentPosition.cpp.o: CXX_COMPILER__BBchess_engine_unscanned_Debug /Users/sejersen/dev/BBchess-engine/CurrentPosition.cpp || cmake_object_order_depends_target_BBchess_engine
-  DEP_FILE = CMakeFiles/BBchess_engine.dir/CurrentPosition.cpp.o.d
+build CMakeFiles/BBchess_engine.dir/position.cpp.o: CXX_COMPILER__BBchess_engine_unscanned_Debug /Users/sejersen/dev/BBchess-engine/position.cpp || cmake_object_order_depends_target_BBchess_engine
+  DEP_FILE = CMakeFiles/BBchess_engine.dir/position.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -fcolor-diagnostics
   INCLUDES = -I/Library/Frameworks/SDL2.framework/Headers
   OBJECT_DIR = CMakeFiles/BBchess_engine.dir
@@ -126,8 +119,15 @@ build CMakeFiles/BBchess_engine.dir/Search.cpp.o: CXX_COMPILER__BBchess_engine_u
   OBJECT_DIR = CMakeFiles/BBchess_engine.dir
   OBJECT_FILE_DIR = CMakeFiles/BBchess_engine.dir
 
-build CMakeFiles/BBchess_engine.dir/move_new.cpp.o: CXX_COMPILER__BBchess_engine_unscanned_Debug /Users/sejersen/dev/BBchess-engine/move_new.cpp || cmake_object_order_depends_target_BBchess_engine
-  DEP_FILE = CMakeFiles/BBchess_engine.dir/move_new.cpp.o.d
+build CMakeFiles/BBchess_engine.dir/move.cpp.o: CXX_COMPILER__BBchess_engine_unscanned_Debug /Users/sejersen/dev/BBchess-engine/move.cpp || cmake_object_order_depends_target_BBchess_engine
+  DEP_FILE = CMakeFiles/BBchess_engine.dir/move.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -fcolor-diagnostics
+  INCLUDES = -I/Library/Frameworks/SDL2.framework/Headers
+  OBJECT_DIR = CMakeFiles/BBchess_engine.dir
+  OBJECT_FILE_DIR = CMakeFiles/BBchess_engine.dir
+
+build CMakeFiles/BBchess_engine.dir/perft.cpp.o: CXX_COMPILER__BBchess_engine_unscanned_Debug /Users/sejersen/dev/BBchess-engine/perft.cpp || cmake_object_order_depends_target_BBchess_engine
+  DEP_FILE = CMakeFiles/BBchess_engine.dir/perft.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -fcolor-diagnostics
   INCLUDES = -I/Library/Frameworks/SDL2.framework/Headers
   OBJECT_DIR = CMakeFiles/BBchess_engine.dir
@@ -141,7 +141,7 @@ build CMakeFiles/BBchess_engine.dir/move_new.cpp.o: CXX_COMPILER__BBchess_engine
 #############################################
 # Link the executable BBchess_engine
 
-build BBchess_engine: CXX_EXECUTABLE_LINKER__BBchess_engine_Debug CMakeFiles/BBchess_engine.dir/main.cpp.o CMakeFiles/BBchess_engine.dir/BitBoard.cpp.o CMakeFiles/BBchess_engine.dir/Move.cpp.o CMakeFiles/BBchess_engine.dir/FenParser.cpp.o CMakeFiles/BBchess_engine.dir/AttackTables.cpp.o CMakeFiles/BBchess_engine.dir/CurrentPosition.cpp.o CMakeFiles/BBchess_engine.dir/bit_manipulation.cpp.o CMakeFiles/BBchess_engine.dir/board_constants.cpp.o CMakeFiles/BBchess_engine.dir/MoveGenerator.cpp.o CMakeFiles/BBchess_engine.dir/Piece.cpp.o CMakeFiles/BBchess_engine.dir/Search.cpp.o CMakeFiles/BBchess_engine.dir/move_new.cpp.o | /opt/homebrew/lib/libSDL2main.a /opt/homebrew/lib/libSDL2.dylib
+build BBchess_engine: CXX_EXECUTABLE_LINKER__BBchess_engine_Debug CMakeFiles/BBchess_engine.dir/main.cpp.o CMakeFiles/BBchess_engine.dir/BitBoard.cpp.o CMakeFiles/BBchess_engine.dir/FenParser.cpp.o CMakeFiles/BBchess_engine.dir/AttackTables.cpp.o CMakeFiles/BBchess_engine.dir/position.cpp.o CMakeFiles/BBchess_engine.dir/bit_manipulation.cpp.o CMakeFiles/BBchess_engine.dir/board_constants.cpp.o CMakeFiles/BBchess_engine.dir/MoveGenerator.cpp.o CMakeFiles/BBchess_engine.dir/Piece.cpp.o CMakeFiles/BBchess_engine.dir/Search.cpp.o CMakeFiles/BBchess_engine.dir/move.cpp.o CMakeFiles/BBchess_engine.dir/perft.cpp.o | /opt/homebrew/lib/libSDL2main.a /opt/homebrew/lib/libSDL2.dylib
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk
   LINK_LIBRARIES = -Wl,-rpath,/opt/homebrew/Cellar/sdl2/2.28.5/lib  /opt/homebrew/lib/libSDL2main.a  /opt/homebrew/lib/libSDL2.dylib  -framework Cocoa
   LINK_PATH = -L/opt/homebrew/Cellar/sdl2/2.28.5/lib

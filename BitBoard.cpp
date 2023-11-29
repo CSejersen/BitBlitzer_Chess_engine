@@ -127,6 +127,18 @@ U64 BitBoard::getAllPieces() const {
     return pieceBB[nWhite] | pieceBB[nBlack];
 }
 
+void BitBoard::removePiece(int piece, int square) {
+    U64 removalMask = ~(1ULL << square);
+    pieceBB[piece] &= removalMask;
+    if (piece < 7) {
+        pieceBB[nWhite] &= removalMask;
+    }
+    else{
+        pieceBB[nBlack] &= removalMask;
+    }
+}
+
+
 
 
 

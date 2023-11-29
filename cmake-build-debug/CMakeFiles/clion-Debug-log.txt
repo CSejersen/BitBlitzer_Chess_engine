@@ -6,6 +6,6 @@ Call Stack (most recent call first):
   CMakeLists.txt:10 (find_package)
 This warning is for project developers.  Use -Wno-dev to suppress it.
 
--- Configuring done (0.0s)
+-- Configuring done (0.2s)
 -- Generating done (0.0s)
 -- Build files have been written to: /Users/sejersen/dev/BBchess-engine/cmake-build-debug

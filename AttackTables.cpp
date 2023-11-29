@@ -3,13 +3,12 @@
 //
 #include "AttackTables.h"
 
-AttackTables::AttackTables(BitBoard* board, CurrentPosition* state) {
+AttackTables::AttackTables(BitBoard* board) {
 
     generateRookAttackMasks();
     generateBishopAttackMasks();
     loadAttackTables();
     _board = board;
-    _state = state;
 }
 
 void AttackTables::generateBishopAttackMasks() {
@@ -245,13 +244,13 @@ U64 AttackTables::getAttacksWhite() const {
 }
 U64 AttackTables::getAttacksBlack() const {
     U64 attacks = 0ULL;
-    U64 blockers = (_board->getPieceSet(nBlack) | _board->getPieceSet(nBlack));
     U64 pawns = _board->getPieceSet(nBlackPawn);
     U64 knights = _board->getPieceSet(nBlackKnight);
     U64 bishops = _board->getPieceSet(nBlackBishop);
     U64 rooks = _board->getPieceSet(nBlackRook);
     U64 queens = _board->getPieceSet(nBlackQueen);
     U64 king = _board->getPieceSet(nBlackKing);
+
     while(pawns){
         int square = getLSB(pawns);
         attacks |= pawnAttacks[square][1];
@@ -285,12 +284,6 @@ U64 AttackTables::getAttacksBlack() const {
     return (attacks & ~_board->getPieceSet(nBlack));
 }
 
-U64 AttackTables::getAttacksCurrentTurn() const {
-    if(_state->getWhiteToMove())
-        return getAttacksWhite();
-    else
-        return getAttacksBlack();
-}
 U64 AttackTables::getRookAttacks(int square) const {
     U64 blockers = _board->getAllPieces();
     blockers &= rookAttackMask[square];

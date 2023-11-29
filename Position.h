@@ -2,44 +2,38 @@
 // Created by Christian Sejersen on 21/11/2023.
 //
 #pragma once
-#include "Move.h"
-#include "move_new.h"
+#include "move.h"
 #include "board_constants.h"
-#include <list>
 #include <iostream>
 #include <vector>
 #include "BitBoard.h"
+#include "AttackTables.h"
 
-enum nCastleingRight{
-    whiteKingSide = 1,
-    whiteQueenSide,
-    blackKingSide,
-    blackQueenSide,
-};
 
-struct Position{
+struct State{
     int castlingRights;
     bool whiteToMove;
-    U64 enPassantSquare;
+    U64 enPassantSquare = 0;
     bool whiteInCheck;
     bool blackInCheck;
     int previousMove;
-    U64 boardPosition[14];
+    int capturedPiece;
 };
 
-class CurrentPosition {
+class Position {
 public:
-    explicit CurrentPosition(BitBoard* board);
+    explicit Position(BitBoard *board, AttackTables *atkTables);
     BitBoard* _board;
+    AttackTables* _atkTables;
     //Move related
     bool getWhiteToMove() const;
-    void addPositionToHistory(int move);
-    Position getPrevPosition();
-    void revertToPreviousPosition();
+    void addStateToHistory(int move);
+    State getPrevPosition();
     void deleteLastPositionFromHistory();
     void passTurn();
-    void makeMove(int&);
+    bool makeMove(int&);
     void undoMove();
+    void undoIllegal(int start, int target, int piece);
 
     // for FEN parsing
     void setHalfMoveClock(int);
@@ -50,6 +44,7 @@ public:
     void setCastlingRight(int enumRight);
     void removeCastlingRight(int enumRight);
     bool getCastlingRight(int enumRight) const;
+    int getCastlingRighs();
     void resetCastlingRights();
 
     // En-Passant
@@ -70,10 +65,11 @@ private:
     U64 enPassantSquare;
     int castlingRights;
     int previousMove;
+    int capturedPiece;
     bool blackInCheck;
     bool whiteInCheck;
 
-    std::vector<Position> gameHistory;
+    std::vector<State> gameHistory;
 
     void handleCaptureFlag(int targetSquare);
 

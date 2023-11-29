@@ -35,6 +35,13 @@ enum enumPieceBB
     nBlackKing,
 };
 
+// Castling rights describe by four bits
+enum nCastleingRight{
+    whiteKingSide = 1,
+    whiteQueenSide = 2,
+    blackKingSide = 4,
+    blackQueenSide = 8,
+};
 
 // rook relevant blocker bits
 extern const int rookRelevantBits[64];

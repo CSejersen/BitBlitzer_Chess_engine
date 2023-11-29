@@ -1,5 +1,5 @@
 #include "FenParser.h"
-FenParser::FenParser(BitBoard* board, CurrentPosition* state) {
+FenParser::FenParser(BitBoard* board, Position* state) {
     _board = board;
     _state = state;
 
