@@ -117,7 +117,7 @@ bool Position::makeMove(int& move) {
     if(whiteToMove){
         U64 blackAttacks = _atkTables->getAttacksBlack();
         if(blackAttacks & _board->pieceBB[nWhiteKing]){
-            undoIllegal(startingSquare,targetSquare,piece);
+            undoIllegal(startingSquare, targetSquare, piece, enPassant);
             return false;
         }
     }
@@ -125,7 +125,7 @@ bool Position::makeMove(int& move) {
         U64 whiteAttacks = _atkTables->getAttacksWhite();
         if (whiteAttacks & _board->pieceBB[nBlackKing]) {
 
-            undoIllegal(startingSquare,targetSquare,piece);
+            undoIllegal(startingSquare, targetSquare, piece, enPassant);
             return false;
         }
     }
@@ -289,10 +289,10 @@ void Position::undoMove() {
 
     if(enPassant){
         if(whiteToMove){
-            _board->placePiece(nBlackPawn, getLSB(enPassantSquare) + 8);
+            _board->placePiece(nBlackPawn, getLSB(enPassantSquare) - 8);
         }
         else{
-            _board->placePiece(nWhitePawn, getLSB(enPassantSquare) - 8);
+            _board->placePiece(nWhitePawn, getLSB(enPassantSquare) + 8);
         }
     }
 
@@ -326,7 +326,7 @@ int Position::getCastlingRighs() {
     return castlingRights;
 }
 
-void Position::undoIllegal(int start, int target, int piece) {
+void Position::undoIllegal(int start, int target, int piece, bool enPassant) {
 
     // replace captured piece
     if(capturedPiece){
@@ -337,7 +337,7 @@ void Position::undoIllegal(int start, int target, int piece) {
     _board->removePiece(piece,target);
 
     // replace captured enPassantPawn
-    if(enPassantSquare){
+    if(enPassant){
         if (whiteToMove){
             _board->placePiece(nWhitePawn, (getLSB(enPassantSquare) - 8));
         }

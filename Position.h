@@ -33,7 +33,7 @@ public:
     void passTurn();
     bool makeMove(int&);
     void undoMove();
-    void undoIllegal(int start, int target, int piece);
+    void undoIllegal(int start, int target, int piece, bool enPassant);
 
     // for FEN parsing
     void setHalfMoveClock(int);
