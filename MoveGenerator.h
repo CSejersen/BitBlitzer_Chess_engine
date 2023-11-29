@@ -12,7 +12,8 @@ public:
     BitBoard* _board;
     AttackTables* _atkTables;
 
-    void generateMoves(std::vector<int> &moves, bool whiteToMove, int castlingRights, const U64 &enPassantSquare);
+    void generateMoves(std::vector<int> &moves, bool whiteToMove, int castlingRights, const U64 &enPassantSquare,
+                       bool inCheck);
     std::vector<int> pseudoLegal;
     std::vector<int> pseudoLegalCapture;
 
@@ -30,8 +31,8 @@ private:
     void generatePawnAdvances(bool whiteToMove);
     void generatePawnCaptures(bool whiteToMove);
     void generateEnPassant(bool whiteToMove, const U64 &enPassantSquare);
-    void generateCastlesWhite(int castlingRights);
-    void generateCastlesBlack(int castlingRights);
+    void generateCastlesWhite(int castlingRights, bool inCheck);
+    void generateCastlesBlack(int castlingRights, bool inCheck);
     void generatePawnAdvancesWhite();
     void generatePawnAdvancesBlack();
     bool decodeCastlingRight(int castlingRights, int right);

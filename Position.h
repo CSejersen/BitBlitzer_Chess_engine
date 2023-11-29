@@ -33,7 +33,7 @@ public:
     void passTurn();
     bool makeMove(int&);
     void undoMove();
-    void undoIllegal(int start, int target, int piece, bool enPassant);
+    void undoIllegal(int start, int target, int piece, bool enPassant, int promotion);
 
     // for FEN parsing
     void setHalfMoveClock(int);
@@ -55,6 +55,8 @@ public:
     // Debug
     void printCastlingRights();
 
+    bool blackInCheck;
+    bool whiteInCheck;
 
 private:
 
@@ -66,8 +68,6 @@ private:
     int castlingRights;
     int previousMove;
     int capturedPiece;
-    bool blackInCheck;
-    bool whiteInCheck;
 
     std::vector<State> gameHistory;
 
@@ -79,6 +79,7 @@ private:
 
     void handleCastlesKingSide();
 
+    bool givesCheck() const;
 };
 
 
