@@ -317,6 +317,42 @@ U64 AttackTables::getKingAttacks(int square) const{
 }
 
 
+bool AttackTables::squareAttackedBy(int square, bool white) {
+    if(white) {
+        if (getKnightAttacks(square) & _board->getPieceSet(nWhiteKnight)) {
+            return true;
+        }
+        if (getBishopAttacks(square) & _board->getPieceSet(nWhiteBishop)) {
+            return true;
+        }
+        if (getRookAttacks(square) & _board->getPieceSet(nWhiteRook)) {
+            return true;
+        }
+        if (getPawnAttacksBlack(square) & _board->getPieceSet(nWhitePawn)) {
+            return true;
+        }
+    }
+    else{
+        if (getKnightAttacks(square) & _board->getPieceSet(nBlackKnight)) {
+            return true;
+        }
+        if (getBishopAttacks(square) & _board->getPieceSet(nBlackBishop)) {
+            return true;
+        }
+        if (getRookAttacks(square) & _board->getPieceSet(nBlackRook)) {
+            return true;
+        }
+        if (getPawnAttacksBlack(square) & _board->getPieceSet(nBlackPawn)) {
+            return true;
+        }
+    }
+
+
+
+
+
+    return false;
+}
 
 //bool AttackTables::whiteKingInCheck() {
 //    U64 king = _board->getPieceSet(nWhiteKing);

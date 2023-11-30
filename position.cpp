@@ -360,10 +360,10 @@ void Position::undoIllegal(int start, int target, int piece, bool enPassant, int
     // replace captured enPassantPawn
     if(enPassant){
         if (whiteToMove){
-            _board->placePiece(nWhitePawn, (getLSB(enPassantSquare) - 8));
+            _board->placePiece(nBlackPawn, (getLSB(enPassantSquare) - 8));
         }
         else {
-            _board->placePiece(nBlackPawn, (getLSB(enPassantSquare) + 8));
+            _board->placePiece(nWhitePawn, (getLSB(enPassantSquare) + 8));
         }
     }
 }

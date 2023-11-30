@@ -20,6 +20,7 @@ public:
     U64 getPawnAttacksWhite(int square) const;
     U64 getPawnAttacksBlack(int square) const;
     U64 getKingAttacks(int square) const;
+    bool squareAttackedBy(int square, bool white);
 
 private:
     void loadAttackTables();

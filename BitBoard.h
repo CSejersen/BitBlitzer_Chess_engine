@@ -15,7 +15,6 @@ public:
     U64 getPieceSet(enumPieceBB) const;
     U64 getAllPieces() const;
     void clearBoard();
-
     // Board indexing util functions
     static int coordinateToIndex(std::string coordinate);
     static std::string indexToCoordinate(int);

@@ -66,3 +66,6 @@
 2	303	1701286387972629801	CMakeFiles/BBchess_engine.dir/main.cpp.o	6f1d0798c6c15145
 2	304	1701286387974281379	CMakeFiles/BBchess_engine.dir/perft.cpp.o	61d5a3d3a4238c58
 304	419	1701286388089835734	BBchess_engine	8d48f4953a7f2ad3
+2	268	1701287735452094422	CMakeFiles/BBchess_engine.dir/main.cpp.o	6f1d0798c6c15145
+4	270	1701287735454020791	CMakeFiles/BBchess_engine.dir/perft.cpp.o	61d5a3d3a4238c58
+270	403	1701287735587800955	BBchess_engine	8d48f4953a7f2ad3
