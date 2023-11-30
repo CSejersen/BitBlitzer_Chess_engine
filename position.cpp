@@ -117,18 +117,15 @@ bool Position::makeMove(int& move) {
         handleEnPassantFlag(targetSquare);
     }
 
-    // undoing if illegal
+    // undoing if king in check
     if(whiteToMove){
-        U64 blackAttacks = _atkTables->getAttacksBlack();
-        if(blackAttacks & _board->pieceBB[nWhiteKing]){
+        if(_atkTables->squareAttackedBy(getLSB(_board->getPieceSet(nWhiteKing)), false)){
             undoIllegal(startingSquare, targetSquare, piece, enPassant, promotion);
             return false;
         }
     }
     else {
-        U64 whiteAttacks = _atkTables->getAttacksWhite();
-        if (whiteAttacks & _board->pieceBB[nBlackKing]) {
-
+        if(_atkTables->squareAttackedBy(getLSB(_board->getPieceSet(nBlackKing)), true)){
             undoIllegal(startingSquare, targetSquare, piece, enPassant, promotion);
             return false;
         }
@@ -216,7 +213,7 @@ void Position::handleCaptureFlag(int targetSquare) {
     _board->removePiece(capturedPiece,targetSquare);
 }
 
-void Position::handleEnPassantFlag(uint8_t targetSquare) {
+void Position::handleEnPassantFlag(uint8_t targetSquare) const {
     int pawnToCapture = 0;
     // searching for Piece to capture
     if (getWhiteToMove()) {
@@ -370,22 +367,34 @@ void Position::undoIllegal(int start, int target, int piece, bool enPassant, int
 
 bool Position::givesCheck() const {
     if(whiteToMove){
-        U64 attacks = _atkTables->getAttacksWhite();
-        if(attacks & _board->getPieceSet(nBlackKing)){
+        if(_atkTables->squareAttackedBy(getLSB(_board->getPieceSet(nBlackKing)), true)){
             return true;
         }
         else{
             return false;
         }
+//        U64 attacks = _atkTables->getAttacksWhite();
+//        if(attacks & _board->getPieceSet(nBlackKing)){
+//            return true;
+//        }
+//        else{
+//            return false;
+//        }
     }
     else{
-        U64 attacks = _atkTables->getAttacksBlack();
-        if(attacks & _board->getPieceSet(nWhiteKing)){
+        if(_atkTables->squareAttackedBy(getLSB(_board->getPieceSet(nWhiteKing)), false)){
             return true;
         }
         else{
             return false;
         }
+//        U64 attacks = _atkTables->getAttacksBlack();
+//        if(attacks & _board->getPieceSet(nWhiteKing)){
+//            return true;
+//        }
+//        else{
+//            return false;
+//        }
 
     }
 };

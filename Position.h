@@ -73,7 +73,7 @@ private:
 
     void handleCaptureFlag(int targetSquare);
 
-    void handleEnPassantFlag(uint8_t targetSquare);
+    void handleEnPassantFlag(uint8_t targetSquare) const;
 
     void handleCastlesQueenSide();
 

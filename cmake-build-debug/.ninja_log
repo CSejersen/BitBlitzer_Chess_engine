@@ -69,3 +69,16 @@
 2	268	1701287735452094422	CMakeFiles/BBchess_engine.dir/main.cpp.o	6f1d0798c6c15145
 4	270	1701287735454020791	CMakeFiles/BBchess_engine.dir/perft.cpp.o	61d5a3d3a4238c58
 270	403	1701287735587800955	BBchess_engine	8d48f4953a7f2ad3
+2	321	1701333554936962079	CMakeFiles/BBchess_engine.dir/Search.cpp.o	86a85196be7303c3
+2	324	1701333554940473818	CMakeFiles/BBchess_engine.dir/AttackTables.cpp.o	48334a85af917ff6
+2	327	1701333554943691769	CMakeFiles/BBchess_engine.dir/BitBoard.cpp.o	5d9a3721bc67c2b0
+2	328	1701333554944616588	CMakeFiles/BBchess_engine.dir/main.cpp.o	6f1d0798c6c15145
+2	330	1701333554947716875	CMakeFiles/BBchess_engine.dir/FenParser.cpp.o	4721733ce63b5f89
+3	333	1701333554949878508	CMakeFiles/BBchess_engine.dir/perft.cpp.o	61d5a3d3a4238c58
+2	334	1701333554951275487	CMakeFiles/BBchess_engine.dir/position.cpp.o	7f61f0f8208f0db4
+2	341	1701333554957506267	CMakeFiles/BBchess_engine.dir/MoveGenerator.cpp.o	39082b57a203c838
+341	470	1701333555087871536	BBchess_engine	8d48f4953a7f2ad3
+2	398	1701333609168251456	CMakeFiles/BBchess_engine.dir/AttackTables.cpp.o	48334a85af917ff6
+398	539	1701333609310921580	BBchess_engine	8d48f4953a7f2ad3
+2	409	1701333769459562133	CMakeFiles/BBchess_engine.dir/AttackTables.cpp.o	48334a85af917ff6
+409	542	1701333769593225936	BBchess_engine	8d48f4953a7f2ad3

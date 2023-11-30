@@ -319,32 +319,34 @@ U64 AttackTables::getKingAttacks(int square) const{
 
 bool AttackTables::squareAttackedBy(int square, bool white) {
     if(white) {
+        if (getRookAttacks(square) & (_board->getPieceSet(nWhiteRook) | _board->getPieceSet(nWhiteQueen))) {
+            return true;
+        }
+        if (getBishopAttacks(square) & (_board->getPieceSet(nWhiteBishop) | _board->getPieceSet(nWhiteQueen))) {
+            return true;
+        }
         if (getKnightAttacks(square) & _board->getPieceSet(nWhiteKnight)) {
-            return true;
-        }
-        if (getBishopAttacks(square) & _board->getPieceSet(nWhiteBishop)) {
-            return true;
-        }
-        if (getRookAttacks(square) & _board->getPieceSet(nWhiteRook)) {
             return true;
         }
         if (getPawnAttacksBlack(square) & _board->getPieceSet(nWhitePawn)) {
             return true;
         }
+        return false;
     }
     else{
+        if (getRookAttacks(square) & (_board->getPieceSet(nBlackRook) | _board->getPieceSet(nBlackQueen))){
+            return true;
+        }
+        if (getBishopAttacks(square) & (_board->getPieceSet(nBlackBishop) | _board->getPieceSet(nBlackQueen))){
+            return true;
+        }
         if (getKnightAttacks(square) & _board->getPieceSet(nBlackKnight)) {
             return true;
         }
-        if (getBishopAttacks(square) & _board->getPieceSet(nBlackBishop)) {
+        if (getPawnAttacksWhite(square) & _board->getPieceSet(nBlackPawn)) {
             return true;
         }
-        if (getRookAttacks(square) & _board->getPieceSet(nBlackRook)) {
-            return true;
-        }
-        if (getPawnAttacksBlack(square) & _board->getPieceSet(nBlackPawn)) {
-            return true;
-        }
+        return false;
     }
 
 
