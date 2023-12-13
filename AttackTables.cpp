@@ -212,7 +212,7 @@ U64 AttackTables::getAttacksWhite() const {
     U64 king = _board->getPieceSet(nWhiteKing);
     while(pawns){
         int square = getLSB(pawns);
-            attacks |= pawnAttacks[square][0];
+            attacks |= pawnAttacks[square][white];
             clearBit(pawns,square);
         }
         while(knights){
@@ -253,7 +253,7 @@ U64 AttackTables::getAttacksBlack() const {
 
     while(pawns){
         int square = getLSB(pawns);
-        attacks |= pawnAttacks[square][1];
+        attacks |= pawnAttacks[square][black];
         clearBit(pawns,square);
     }
     while(knights){
@@ -305,11 +305,11 @@ U64 AttackTables::getKnightAttacks(int square) const {
 }
 
 U64 AttackTables::getPawnAttacksWhite(int square) const{
-    return pawnAttacks[square][0];
+    return pawnAttacks[square][white];
 }
 
 U64 AttackTables::getPawnAttacksBlack(int square) const{
-    return pawnAttacks[square][1];
+    return pawnAttacks[square][black];
 }
 
 U64 AttackTables::getKingAttacks(int square) const{
@@ -318,13 +318,17 @@ U64 AttackTables::getKingAttacks(int square) const{
 
 
 bool AttackTables::squareAttackedBy(int square, bool white) {
+    //  attacked by white
     if(white) {
+        // attacked by rook or queen
         if (getRookAttacks(square) & (_board->getPieceSet(nWhiteRook) | _board->getPieceSet(nWhiteQueen))) {
             return true;
         }
+        // attacked by Bishop or queen
         if (getBishopAttacks(square) & (_board->getPieceSet(nWhiteBishop) | _board->getPieceSet(nWhiteQueen))) {
             return true;
         }
+        // etc...
         if (getKnightAttacks(square) & _board->getPieceSet(nWhiteKnight)) {
             return true;
         }
@@ -333,6 +337,7 @@ bool AttackTables::squareAttackedBy(int square, bool white) {
         }
         return false;
     }
+    //  attacked by black
     else{
         if (getRookAttacks(square) & (_board->getPieceSet(nBlackRook) | _board->getPieceSet(nBlackQueen))){
             return true;
@@ -356,17 +361,3 @@ bool AttackTables::squareAttackedBy(int square, bool white) {
     return false;
 }
 
-//bool AttackTables::whiteKingInCheck() {
-//    U64 king = _board->getPieceSet(nWhiteKing);
-//    if(king & getAttacksBlack())
-//        return true;
-//    else
-//        return false;
-//}
-//bool AttackTables::blackKingInCheck() {
-//    U64 king = _board->getPieceSet(nBlackKing);
-//    if(king & getAttacksWhite())
-//        return true;
-//    else
-//        return false;
-//}

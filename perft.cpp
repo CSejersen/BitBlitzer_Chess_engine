@@ -14,10 +14,7 @@ U64 Perft::countNodes(int depth) {
                                  position->getEnPassantSquare(), inCheck);
 
     for(int move : moves){
-//        std::cout << "moving: " << BitBoard::indexToCoordinate(getMoveStart(move)) << BitBoard::indexToCoordinate(getMoveTarget(move)) << std::endl;
         if(position->makeMove(move)){
-//            BitBoard::printBB(board->getPieceSet(nWhite));
-//            BitBoard::printBB(board->getPieceSet(nBlack));
             nodes += countNodes(depth - 1);
             position->undoMove();
         }
@@ -34,19 +31,10 @@ void Perft::perft(int depth){
 
     for(int& move : moves){
         if(position->makeMove(move)){
-//            std::cout << "MOVE: " << BitBoard::indexToCoordinate(getMoveStart(move)) << " - " << BitBoard::indexToCoordinate(getMoveTarget(move)) << std::endl;
-//            std::cout << "White: " << std::endl;
-//            BitBoard::printBB(board->getPieceSet(nWhite));
-//            std::cout << "Black: " << std::endl;
-//            BitBoard::printBB(board->getPieceSet(nBlack));
             nodes = countNodes(depth - 1);
             totalNodes += nodes;
             std::cout << BitBoard::indexToCoordinate(getMoveStart(move)) << BitBoard::indexToCoordinate(getMoveTarget(move)) << ": " << nodes << std::endl;
             position->undoMove();
-//            std::cout << "White: " << std::endl;
-//            BitBoard::printBB(board->getPieceSet(nWhite));
-//            std::cout << "Black: " << std::endl;
-//            BitBoard::printBB(board->getPieceSet(nBlack));
             }
     }
     std::cout << "\nNodes searched: " << totalNodes << std::endl;

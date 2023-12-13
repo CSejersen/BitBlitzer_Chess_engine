@@ -12,7 +12,7 @@ public:
     U64 pieceBB[14];
     void placePiece(int piece, int square);
     void removePiece(int piece, int square);
-    U64 getPieceSet(enumPieceBB) const;
+    U64 getPieceSet(int pieceType) const;
     U64 getAllPieces() const;
     void clearBoard();
     // Board indexing util functions

@@ -5,7 +5,7 @@
 BitBoard::BitBoard() = default;
 
 // returns the bitboard for the requested Piece
-U64 BitBoard::getPieceSet(enumPieceBB pieceType) const {
+U64 BitBoard::getPieceSet(int pieceType) const {
     return pieceBB[pieceType];
 }
 

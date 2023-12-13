@@ -45,7 +45,3 @@ const int bishopRelevantBits[64] = {
         6, 5, 5, 5, 5, 5, 5, 6
 };
 
-enum color{
-    white,
-    black,
-};
