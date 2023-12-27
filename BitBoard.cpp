@@ -1,6 +1,4 @@
 #include "BitBoard.h"
-
-
 // Bitboards constructor
 BitBoard::BitBoard() = default;
 
@@ -9,7 +7,7 @@ U64 BitBoard::getPieceSet(int pieceType) const {
     return pieceBB[pieceType];
 }
 
-// places Piece on a given _square of passed Bitboard
+// Places Piece on the given square
 void BitBoard::placePiece(int pieceType, int square){
     U64 placementMask = 1ULL << square;
     pieceBB[pieceType] |= placementMask;
@@ -21,13 +19,12 @@ void BitBoard::placePiece(int pieceType, int square){
     }
 }
 
-// prints a nice view of bitboard for a given Piece.
-void BitBoard::printBB(const U64& bb) {
+void BitBoard::printBB_helper(const U64& bb, char piece) {
     U64 shiftMe = 1ULL;
     for(int file = 7; file >= 0; file--){
         for(int i = 0; i < 8; i++){
             if((shiftMe << ((file * 8) + i)) & bb){
-                std::cout << "x ";
+                std::cout << piece << " ";
             }
             else{
                 std::cout << "- ";
@@ -37,14 +34,32 @@ void BitBoard::printBB(const U64& bb) {
     }
     std::cout << std::endl;
 }
+// prints a nice view of the given bitboard.
+void BitBoard::printBB() const {
+    U64 shiftMe = 1ULL;
+    for(int file = 7; file >= 0; file--){
+        for(int i = 0; i < 8; i++){
+            if((shiftMe << ((file * 8) + i)) & getAllPieces()){
+                std::cout << "x ";
+            }
+            else{
+                std::cout << "- ";
+            }
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+    std::cout << std::endl;
+}
 
+// clears entire board
 void BitBoard::clearBoard(){
     for(U64& pieceSet : pieceBB){
         pieceSet = 0ULL;
     }
 }
 
-
+// conversion function, example A1 --> 0 or B1 --> 1
 int BitBoard::coordinateToIndex(std::string coordinate) {
     int file = 0;
     int rank = 0;
@@ -88,6 +103,7 @@ int BitBoard::coordinateToIndex(std::string coordinate) {
     return squareIndex;
 }
 
+// conversion function, example 0 --> a1 or 1 --> b1
 std::string BitBoard::indexToCoordinate(int index){
     std::string rank;
     std::string file;
@@ -123,10 +139,12 @@ std::string BitBoard::indexToCoordinate(int index){
     return file+rank;
 }
 
+// return a bitboard with all current pieces, black and white.
 U64 BitBoard::getAllPieces() const {
     return pieceBB[nWhite] | pieceBB[nBlack];
 }
 
+// removes piece from given square
 void BitBoard::removePiece(int piece, int square) {
     U64 removalMask = ~(1ULL << square);
     pieceBB[piece] &= removalMask;

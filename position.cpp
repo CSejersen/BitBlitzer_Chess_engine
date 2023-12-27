@@ -97,7 +97,7 @@ bool Position::makeMove(int& move) {
     bool enPassant = getMoveEnPassant(move);
     bool castling = getMoveCastling(move);
 
-    // calculating captured piece before saving position in history
+    // calculating captured piece before saving _position in history
     capturedPiece = 0;
     if(capture){
         handleCaptureFlag(targetSquare);
@@ -117,7 +117,7 @@ bool Position::makeMove(int& move) {
         handleEnPassantFlag(targetSquare);
     }
 
-    // undoing if king in check
+    // undo if king in check and return false
     if(whiteToMove){
         if(_atkTables->squareAttackedBy(getLSB(_board->getPieceSet(nWhiteKing)), false)){
             undoIllegal(startingSquare, targetSquare, piece, enPassant, promotion);
@@ -366,35 +366,23 @@ void Position::undoIllegal(int start, int target, int piece, bool enPassant, int
 }
 
 bool Position::givesCheck() const {
-    if(whiteToMove){
+    if(whiteToMove && _board->getPieceSet(nBlackKing)){
         if(_atkTables->squareAttackedBy(getLSB(_board->getPieceSet(nBlackKing)), true)){
             return true;
         }
         else{
             return false;
         }
-//        U64 attacks = _atkTables->getAttacksWhite();
-//        if(attacks & _board->getPieceSet(nBlackKing)){
-//            return true;
-//        }
-//        else{
-//            return false;
-//        }
     }
-    else{
+    else if(!whiteToMove && _board->getPieceSet(nWhiteKing)){
         if(_atkTables->squareAttackedBy(getLSB(_board->getPieceSet(nWhiteKing)), false)){
             return true;
         }
         else{
             return false;
         }
-//        U64 attacks = _atkTables->getAttacksBlack();
-//        if(attacks & _board->getPieceSet(nWhiteKing)){
-//            return true;
-//        }
-//        else{
-//            return false;
-//        }
-
+    }
+    else{
+        return false;
     }
 };

@@ -27,14 +27,13 @@ add_executable(BBchess_engine main.cpp
         board_constants.h
         board_constants.cpp
         MoveGenerator.cpp
-        Piece.cpp
-        Piece.h
         Search.cpp
         Search.h
         move.h
         move.cpp
         perft.h
         perft.cpp
+        piece_square_tables.h
 )
 
 target_link_libraries(BBchess_engine ${SDL2_LIBRARY} )

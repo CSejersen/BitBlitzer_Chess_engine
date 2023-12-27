@@ -7,35 +7,55 @@ MoveGenerator::MoveGenerator(BitBoard *board, AttackTables *attackTables) {
     _board = board;
     _atkTables = attackTables;
 }
-void
-MoveGenerator::generateMoves(std::vector<int> &moves, bool whiteToMove, int castlingRights, const U64 &enPassantSquare,
+void MoveGenerator::generateMoves(std::vector<int> &moves, bool whiteToMove, int castlingRights, const U64 &enPassantSquare,
                              bool inCheck) {
+    // clearing move lists from last time
     pseudoLegal.clear();
     pseudoLegalCapture.clear();
 
+    // generate all pseudo-legal moves
     generatePawnAdvances(whiteToMove);
     generatePawnCaptures(whiteToMove);
-    generateKnightMovesWhite(whiteToMove);
+    generateKnightMoves(whiteToMove);
     generateBishopMoves(whiteToMove);
     generateRookMoves(whiteToMove);
     generateKingMoves(whiteToMove);
     generateQueenMoves(whiteToMove);
     generateEnPassant(whiteToMove, enPassantSquare);
-    if(whiteToMove){
-        generateCastlesWhite(castlingRights, inCheck);
-    }
-    else
-        generateCastlesBlack(castlingRights, inCheck);
+    whiteToMove ? generateCastlesWhite(castlingRights, inCheck) : generateCastlesBlack(castlingRights, inCheck);
 
+    // inserting all moves into "moves-vector" passed by reference
     moves.reserve( pseudoLegal.size() + pseudoLegalCapture.size() ); // preallocate memory
     moves.insert( moves.end(), pseudoLegalCapture.begin(), pseudoLegalCapture.end() );
     moves.insert( moves.end(), pseudoLegal.begin(), pseudoLegal.end() );
 }
-void MoveGenerator::generateKnightMovesWhite(bool whiteToMove) {
+
+bool MoveGenerator::generateCaptures(std::vector<int> &captures, bool whiteToMove, int castlingRights, const U64 &enPassantSquare) {
+    pseudoLegal.clear();
+    pseudoLegalCapture.clear();
+    generatePawnCaptures(whiteToMove);
+    generateKnightCaptures(whiteToMove);
+    generateBishopCaptures(whiteToMove);
+    generateRookCaptures(whiteToMove);
+    generateQueenCaptures(whiteToMove);
+    generateKingCaptures(whiteToMove);
+
+    if(!pseudoLegalCapture.empty()){
+        captures.reserve( pseudoLegalCapture.size() ); // preallocate memory
+        captures.insert( captures.end(), pseudoLegalCapture.begin(), pseudoLegalCapture.end() );
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+void MoveGenerator::generateKnightMoves(bool whiteToMove) {
+    // getting knights of active color
     U64 knights;
     U64 attacks;
     knights = whiteToMove ? _board->getPieceSet(nWhiteKnight) : _board->getPieceSet(nBlackKnight);
 
+    // generating pseudo-legal moves for every knight
     while (knights) {
         int startSquare = getLSB(knights);
         clearBit(knights, startSquare);
@@ -246,6 +266,7 @@ void MoveGenerator::generatePawnAdvancesWhite() {
                     pseudoLegal.push_back(move);
                 }
             }
+            // encode move with no promotion
             else{
                 int move = encodeMove(startSquare,targetSquare,nWhitePawn,0,0,0,0,0);
                 pseudoLegal.push_back(move);
@@ -255,7 +276,7 @@ void MoveGenerator::generatePawnAdvancesWhite() {
             continue;
 
         // getting double pawn advances
-        if(startSquare <= 15){
+        if(1ULL << startSquare & RANK_2){
             blocked = ((1ULL << (startSquare + 16)) & ~_board->getAllPieces())== 0;
             if(!blocked){
                 int targetSquare = startSquare + 16;
@@ -292,7 +313,7 @@ void MoveGenerator::generatePawnAdvancesBlack() {
             continue;
 
         // getting double pawn advances
-        if(startSquare >= 48){
+        if(1ULL << startSquare & RANK_7){
             blocked = ((1ULL << (startSquare - 16)) & ~_board->getAllPieces()) == 0;
             if(!blocked){
                 int targetSquare = startSquare - 16;
@@ -304,34 +325,39 @@ void MoveGenerator::generatePawnAdvancesBlack() {
 }
 
 void MoveGenerator::generatePawnAdvances(bool whiteToMove) {
-    if(whiteToMove)
-        generatePawnAdvancesWhite();
-    else
-        generatePawnAdvancesBlack();
+    whiteToMove ? generatePawnAdvancesWhite() : generatePawnAdvancesBlack();
 }
 
 void MoveGenerator::generatePawnCaptures(bool whiteToMove) {
+    // getting active color pawns
     U64 pawns = whiteToMove ? _board->getPieceSet(nWhitePawn) : _board->getPieceSet(nBlackPawn);
     U64 attacks;
     U64 captures;
 
     while(pawns){
+        // getting first pawn starting-square and remove it from the board
         int startSquare = getLSB(pawns);
         clearBit(pawns,startSquare);
 
+        // Look-up pawn attacks from starting-square and generate captures
+        // for white:
         if(whiteToMove){
             attacks = (_atkTables->getPawnAttacksWhite(startSquare) & ~_board->getPieceSet(nWhite));
             captures = attacks & _board->getPieceSet(nBlack);
         }
+        // for black:
         else{
             attacks = (_atkTables->getPawnAttacksBlack(startSquare) & ~_board->getPieceSet(nBlack));
             captures = attacks & _board->getPieceSet(nWhite);
         }
 
+        // encode and add captures to move-lists
         while(captures){
             int targetSquare = getLSB(captures);
             clearBit(captures,targetSquare);
 
+            // Check for promotion
+            // for white:
             if (whiteToMove) {
                 if(1ULL << targetSquare & RANK_8){
                     for(int piece = nWhiteKnight; piece <= nWhiteQueen; piece++){
@@ -345,7 +371,7 @@ void MoveGenerator::generatePawnCaptures(bool whiteToMove) {
                 }
             }
 
-            // black to move
+            // For black
             else {
                 if(1ULL << targetSquare & RANK_1){
                     for(int piece = nBlackKnight; piece <= nBlackQueen; piece++){
@@ -365,7 +391,7 @@ void MoveGenerator::generatePawnCaptures(bool whiteToMove) {
 void MoveGenerator::generateEnPassant(bool whiteToMove, const U64 &enPassantSquare) {
 
     // can be made faster by getting all pawn attacks then anding with en-Passant square and getting opposite color pawn attacks from resulting square.
-    // ocerlap with white pawns are legal En-Passant moves
+    // then overlap with white pawns are legal En-Passant moves
 
     U64 pawns = whiteToMove ? _board->getPieceSet(nWhitePawn) : _board->getPieceSet(nBlackPawn);
     U64 attacks;
@@ -396,13 +422,16 @@ void MoveGenerator::generateEnPassant(bool whiteToMove, const U64 &enPassantSqua
 
 void MoveGenerator::generateCastlesWhite(int castlingRights, bool inCheck) {
 
+    // Castling illegal if in check
     if(inCheck){
         return;
     }
 
+    // defining square for later use (MAYBE PUT IN BOARD CCONSTANTS)
     U64 kingSideSquares = 1ULL << G1 | 1ULL << F1;
     U64 queenSideSquares = 1ULL << C1 | 1ULL << D1;
     U64 queenSideBlockSquares = 1ULL << C1 | 1ULL << D1 | 1ULL << B1;
+    // get all black attacks
     U64 blackAttack = _atkTables->getAttacksBlack();
 
     if(decodeCastlingRight(castlingRights, whiteKingSide)){
@@ -470,13 +499,6 @@ bool MoveGenerator::isCapture(int targetSquare, bool whiteToMove) const{
         return false;
 }
 
-bool MoveGenerator::whiteKingInCheck() const {
-    return(_atkTables->getAttacksBlack() & _board->getPieceSet(nWhiteKing));
-}
-
-bool MoveGenerator::blackKingInCheck() const {
-    return(_atkTables->getAttacksWhite() & _board->getPieceSet(nBlackKing));
-}
 
 void MoveGenerator::printLegalMoves(){
     std::cout << "Quiet moves: " << std::endl;
@@ -494,5 +516,206 @@ void MoveGenerator::printLegalMoves(){
 bool MoveGenerator::decodeCastlingRight(int castlingRights, int enumRight) {
         return (castlingRights & enumRight) != 0;
     }
+
+void MoveGenerator::generateEvasionMoves(std::vector<int> &moves, bool whiteToMove, const U64 &enPassantSquare) {
+
+    // All moves that evade the check
+}
+
+void MoveGenerator::generateKnightCaptures(bool whiteToMove) {
+    // getting knights of active color
+    U64 knights;
+    U64 captures;
+    knights = whiteToMove ? _board->getPieceSet(nWhiteKnight) : _board->getPieceSet(nBlackKnight);
+
+    // generating captures for every knight
+    while (knights) {
+        int startSquare = getLSB(knights);
+        clearBit(knights, startSquare);
+
+        if (whiteToMove)
+            captures = (_atkTables->getKnightAttacks(startSquare) & ~_board->getPieceSet(nWhite)) &
+                       _board->getPieceSet(nBlack);
+        else
+            captures = (_atkTables->getKnightAttacks(startSquare) & ~_board->getPieceSet(nBlack)) &
+                       _board->getPieceSet(nWhite);
+
+        while (captures) {
+            int targetSquare = getLSB(captures);
+            clearBit(captures, targetSquare);
+
+            if (isCapture(targetSquare, whiteToMove)) {
+                if (whiteToMove) {
+                    int move = encodeMove(startSquare, targetSquare, nWhiteKnight, 0, 1, 0, 0, 0);
+                    pseudoLegalCapture.push_back(move);
+                } else {
+                    int move = encodeMove(startSquare, targetSquare, nBlackKnight, 0, 1, 0, 0, 0);
+                    pseudoLegalCapture.push_back(move);
+                }
+            } else {
+                throw std::invalid_argument("generated non-captures in generate captures");
+            }
+        }
+    }
+}
+
+
+void MoveGenerator::generateBishopCaptures(bool whiteToMove) {
+    // getting bishops of active color
+    U64 bishops;
+    U64 captures;
+    bishops = whiteToMove ? _board->getPieceSet(nWhiteBishop) : _board->getPieceSet(nBlackBishop);
+
+    // generating captures for every knight
+    while (bishops) {
+        int startSquare = getLSB(bishops);
+        clearBit(bishops, startSquare);
+
+        if (whiteToMove) {
+            captures = (_atkTables->getBishopAttacks(startSquare) & ~_board->getPieceSet(nWhite)) &
+                       _board->getPieceSet(nBlack);
+        }
+        else {
+            captures = (_atkTables->getBishopAttacks(startSquare) & ~_board->getPieceSet(nBlack)) &
+                       _board->getPieceSet(nWhite);
+        }
+        while (captures) {
+            int targetSquare = getLSB(captures);
+            clearBit(captures, targetSquare);
+
+            if (isCapture(targetSquare, whiteToMove)) {
+                if (whiteToMove) {
+                    int move = encodeMove(startSquare, targetSquare, nWhiteBishop, 0, 1, 0, 0, 0);
+                    pseudoLegalCapture.push_back(move);
+                } else {
+                    int move = encodeMove(startSquare, targetSquare, nBlackBishop, 0, 1, 0, 0, 0);
+                    pseudoLegalCapture.push_back(move);
+                }
+            } else {
+                throw std::invalid_argument("generated non-captures in generate captures");
+            }
+        }
+    }
+}
+
+void MoveGenerator::generateRookCaptures(bool whiteToMove) {
+    // getting rooks of active color
+    U64 rooks;
+    U64 captures;
+    rooks = whiteToMove ? _board->getPieceSet(nWhiteRook) : _board->getPieceSet(nBlackRook);
+
+    // generating captures for every knight
+    while (rooks) {
+        int startSquare = getLSB(rooks);
+        clearBit(rooks, startSquare);
+
+        if (whiteToMove) {
+            captures = (_atkTables->getRookAttacks(startSquare) & ~_board->getPieceSet(nWhite)) &
+                       _board->getPieceSet(nBlack);
+        }
+        else {
+            captures = (_atkTables->getRookAttacks(startSquare) & ~_board->getPieceSet(nBlack)) &
+                       _board->getPieceSet(nWhite);
+        }
+        while (captures) {
+            int targetSquare = getLSB(captures);
+            clearBit(captures, targetSquare);
+
+            if (isCapture(targetSquare, whiteToMove)) {
+                if (whiteToMove) {
+                    int move = encodeMove(startSquare, targetSquare, nWhiteRook, 0, 1, 0, 0, 0);
+                    pseudoLegalCapture.push_back(move);
+                } else {
+                    int move = encodeMove(startSquare, targetSquare, nBlackRook, 0, 1, 0, 0, 0);
+                    pseudoLegalCapture.push_back(move);
+                }
+            } else {
+                throw std::invalid_argument("generated non-captures in generate captures");
+            }
+        }
+    }
+}
+
+void MoveGenerator::generateQueenCaptures(bool whiteToMove) {
+    U64 queens = whiteToMove ? _board->getPieceSet(nWhiteQueen) : _board->getPieceSet(nBlackQueen);
+    U64 straightAttacks;
+    U64 diagonalAttacks;
+    U64 captures;
+
+    while(queens) {
+        int startSquare = getLSB(queens);
+        clearBit(queens, startSquare);
+        if (whiteToMove) {
+            straightAttacks = _atkTables->getRookAttacks(startSquare) & ~_board->getPieceSet(nWhite);
+            diagonalAttacks = _atkTables->getBishopAttacks(startSquare) & ~_board->getPieceSet(nWhite);
+        } else {
+            straightAttacks = _atkTables->getRookAttacks(startSquare) & ~_board->getPieceSet(nBlack);
+            diagonalAttacks = _atkTables->getBishopAttacks(startSquare) & ~_board->getPieceSet(nBlack);
+        }
+
+        if(whiteToMove){
+            captures = (straightAttacks | diagonalAttacks) & _board->getPieceSet(nBlack);
+        }
+        else{
+            captures = (straightAttacks | diagonalAttacks) & _board->getPieceSet(nWhite);
+        }
+
+        while (captures) {
+            int targetSquare = getLSB(captures);
+            clearBit(captures, targetSquare);
+
+            // validating captures
+            if (isCapture(targetSquare, whiteToMove)) {
+                if (whiteToMove) {
+                    int move = encodeMove(startSquare, targetSquare, nWhiteQueen, 0, 1, 0, 0, 0);
+                    pseudoLegalCapture.push_back(move);
+                } else {
+                    int move = encodeMove(startSquare, targetSquare, nBlackQueen, 0, 1, 0, 0, 0);
+                    pseudoLegalCapture.push_back(move);
+                }
+            }
+            else{
+                throw std::invalid_argument("generated non-captures in generate captures");
+            }
+        }
+    }
+}
+
+void MoveGenerator::generateKingCaptures(bool whiteToMove) {
+    // getting king of active color
+    U64 king;
+    U64 captures;
+    king = whiteToMove ? _board->getPieceSet(nWhiteKing) : _board->getPieceSet(nBlackKing);
+
+    // generating captures for King
+    int startSquare = getLSB(king);
+
+    if (whiteToMove) {
+        captures = (_atkTables->getKingAttacks(startSquare) & ~_board->getPieceSet(nWhite)) &
+                   _board->getPieceSet(nBlack);
+    }
+    else {
+        captures = (_atkTables->getKingAttacks(startSquare) & ~_board->getPieceSet(nBlack)) &
+                   _board->getPieceSet(nWhite);
+    }
+    while (captures) {
+        int targetSquare = getLSB(captures);
+        clearBit(captures, targetSquare);
+
+        if (isCapture(targetSquare, whiteToMove)) {
+            if (whiteToMove) {
+                int move = encodeMove(startSquare, targetSquare, nWhiteKing, 0, 1, 0, 0, 0);
+                pseudoLegalCapture.push_back(move);
+            } else {
+                int move = encodeMove(startSquare, targetSquare, nBlackKing, 0, 1, 0, 0, 0);
+                pseudoLegalCapture.push_back(move);
+            }
+        } else {
+            throw std::invalid_argument("generated non-captures in generate captures");
+        }
+    }
+}
+
+
 
 

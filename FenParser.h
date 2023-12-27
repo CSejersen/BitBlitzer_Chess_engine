@@ -12,7 +12,7 @@ public:
     void loadFenPosition(const std::string& fenString);
     void loadStartingPosition();
     BitBoard* _board;
-    Position* _state;
+    Position* _position;
 private:
     // FEN parsing utility functions
     int fenParsePieces(std::string& fen); // returns index number reached in fen-string

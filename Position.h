@@ -55,8 +55,10 @@ public:
     // Debug
     void printCastlingRights();
 
-    bool blackInCheck;
     bool whiteInCheck;
+    bool blackInCheck;
+    bool whiteMated;
+    bool blackMated;
 
 private:
 

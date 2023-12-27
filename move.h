@@ -1,5 +1,6 @@
 #pragma once
 #include "board_constants.h"
+#include "BitBoard.h"
 #include <iostream>
 
 /*
@@ -25,5 +26,6 @@ bool getMoveCapture(int move);
 bool getMoveDoublePush(int move);
 bool getMoveEnPassant(int move);
 bool getMoveCastling(int move);
+void printMove(int move);
 
 void printMove(int move);

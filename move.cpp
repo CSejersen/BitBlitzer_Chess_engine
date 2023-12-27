@@ -28,8 +28,8 @@ int encodeMove(int start, int target, int piece, int promotion, int capture, int
 }
 
 void printMove(int move) {
-    std::cout << "start: " << getMoveStart(move) << std::endl;
-    std::cout << "target: " << getMoveTarget(move) << std::endl;
+    std::cout << "start: " << BitBoard::indexToCoordinate(getMoveStart(move)) << std::endl;
+    std::cout << "target: " << BitBoard::indexToCoordinate(getMoveTarget(move)) << std::endl;
     std::cout << "Piece: " << getMovePiece(move) << std::endl;
     std::cout << "Promotion: " << getMovePromotion(move) << std::endl;
     std::cout << "Capture: " << getMoveCapture(move) << std::endl;

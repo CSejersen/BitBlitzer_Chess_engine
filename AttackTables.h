@@ -9,7 +9,7 @@
 
 class AttackTables {
 public:
-    AttackTables(BitBoard* board);
+    explicit AttackTables(BitBoard* board);
     BitBoard* _board;
     // attack-map getters
     U64 getAttacksWhite() const; // returns all possible attacks for white.
@@ -20,10 +20,11 @@ public:
     U64 getPawnAttacksWhite(int square) const;
     U64 getPawnAttacksBlack(int square) const;
     U64 getKingAttacks(int square) const;
-    bool squareAttackedBy(int square, bool white); // false = attacked by black, true = attacked by white
+    bool squareAttackedBy(int square, bool white); // bool white: True = attacked by white, False = attacked by black
 
 private:
-    // initialization
+    // initialization of attack tables.
+    // Init is handled by constructor.
     void loadAttackTables();
     U64 generateBlockers(int,int,U64) const;
     void generateBishopAttackMasks();

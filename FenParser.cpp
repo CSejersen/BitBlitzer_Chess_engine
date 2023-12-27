@@ -1,7 +1,7 @@
 #include "FenParser.h"
 FenParser::FenParser(BitBoard* board, Position* state) {
     _board = board;
-    _state = state;
+    _position = state;
 
 }
 int FenParser::fenParsePieces(std::string& fen){
@@ -108,10 +108,10 @@ int FenParser::fenParsePieces(std::string& fen){
 
 int FenParser::fenParseTurn(int index, std::string& fen){
     if(fen[index] == 'w'){
-        _state->setWhiteToMove(true);
+        _position->setWhiteToMove(true);
     }
     else{
-        _state->setWhiteToMove(false);
+        _position->setWhiteToMove(false);
     }
     return index += 2;
 }
@@ -120,24 +120,24 @@ int FenParser::fenParseCastlingRights(int index, std::string& fen) {
     int indexTracker = index;
     bool quit = false;
 
-    _state->resetCastlingRights();
+    _position->resetCastlingRights();
 
     for(int i = index; i < fen.size() && !quit; i++) {
         switch (fen[i]) {
             case 'K':
-                _state->setCastlingRight(whiteKingSide);
+                _position->setCastlingRight(whiteKingSide);
                 break;
 
             case 'Q':
-                _state->setCastlingRight(whiteQueenSide);
+                _position->setCastlingRight(whiteQueenSide);
                 break;
 
             case 'k':
-                _state->setCastlingRight(blackKingSide);
+                _position->setCastlingRight(blackKingSide);
                 break;
 
             case 'q':
-                _state->setCastlingRight(blackQueenSide);
+                _position->setCastlingRight(blackQueenSide);
                 break;
 
             case '-':
@@ -224,7 +224,7 @@ int FenParser::fenParseEnPassant(int index, std::string& fen) {
     }
     if(enPassant){
         int square = (rank*8) + file;
-        _state->setEnPassantSquare(square);
+        _position->setEnPassantSquare(square);
 
     }
     return indexTracker;
@@ -244,7 +244,7 @@ int FenParser::fenParseHalfmove(int index, std::string &fen) {
         }
         indexTracker ++;
     }
-    _state->setHalfMoveClock(stoi(halfmoves));
+    _position->setHalfMoveClock(stoi(halfmoves));
     return indexTracker;
 }
 
@@ -260,7 +260,7 @@ void FenParser::fenParseMoveNum(int index, std::string &fen) {
             quit = true;
         }
     }
-    _state->setMoveNum(stoi(moves));
+    _position->setMoveNum(stoi(moves));
 }
 
 void FenParser::loadFenPosition(const std::string& fenString) {
