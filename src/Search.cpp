@@ -1,7 +1,5 @@
 #include "Search.h"
-#include "piece_square_tables.h"
-#include <cmath>
-#include <random>
+#include "Eval_Tables.h"
 
 Search::Search(BitBoard *board, MoveGenerator *generator,
                AttackTables *atkTables, Position *position) {
@@ -9,24 +7,27 @@ Search::Search(BitBoard *board, MoveGenerator *generator,
   this->moveGen = generator;
   this->atkTables = atkTables;
   this->position = position;
+  evalTables = Eval_tables();
 }
 
 // returns evaluation of board _position
 // from perspective of active player
 int Search::evaluate() {
-  int score = 0;
+  int mg[2];
+  int eg[2];
+  int gamePhase = 0;
+
+  mg[WHITE] = 0;
+  mg[BLACK] = 0;
+  eg[WHITE] = 0;
+  eg[BLACK] = 0;
 
   for (int piece = nWhitePawn; piece <= nBlackKing; piece++) {
     // skipping board with all black pieces
     if (piece == nBlack) {
       continue;
     }
-
-    // MATERIAL COUNT
-    // Adding up all values of all pieces on the board
     U64 pieces = board->getPieceSet(piece);
-    int pieceNum = std::popcount(pieces);
-    score += pieceNum * pieceValue[piece];
 
     // PIECE PLACEMENT MAPS
     while (pieces) {
@@ -35,40 +36,64 @@ int Search::evaluate() {
 
       switch (piece) {
       case nWhitePawn:
-        score += whitePawnPlacementScore[square];
+        mg[WHITE] += evalTables.get_mg_table(WHITE_PAWN, square);
+        eg[WHITE] += evalTables.get_eg_table(WHITE_PAWN, square);
+        gamePhase += evalTables.get_gamephaseInc(WHITE_PAWN);
         break;
       case nBlackPawn:
-        score -= blackPawnPlacementScore[square];
+        mg[BLACK] += evalTables.get_mg_table(BLACK_PAWN, square);
+        eg[BLACK] += evalTables.get_eg_table(BLACK_PAWN, square);
+        gamePhase += evalTables.get_gamephaseInc(BLACK_PAWN);
         break;
       case nWhiteKnight:
-        score += whiteKnightPlacementScore[square];
+        mg[WHITE] += evalTables.get_mg_table(WHITE_KNIGHT, square);
+        eg[WHITE] += evalTables.get_eg_table(WHITE_KNIGHT, square);
+        gamePhase += evalTables.get_gamephaseInc(WHITE_KNIGHT);
         break;
       case nBlackKnight:
-        score -= blackKnightPlacementScore[square];
+        mg[BLACK] += evalTables.get_mg_table(BLACK_KNIGHT, square);
+        eg[BLACK] += evalTables.get_eg_table(BLACK_KNIGHT, square);
+        gamePhase += evalTables.get_gamephaseInc(BLACK_KNIGHT);
         break;
       case nWhiteBishop:
-        score += whiteBishopPlacementScore[square];
+        mg[WHITE] += evalTables.get_mg_table(WHITE_BISHOP, square);
+        eg[WHITE] += evalTables.get_eg_table(WHITE_BISHOP, square);
+        gamePhase += evalTables.get_gamephaseInc(WHITE_BISHOP);
         break;
       case nBlackBishop:
-        score -= blackBishopPlacementScore[square];
+        mg[BLACK] += evalTables.get_mg_table(BLACK_BISHOP, square);
+        eg[BLACK] += evalTables.get_eg_table(BLACK_BISHOP, square);
+        gamePhase += evalTables.get_gamephaseInc(BLACK_BISHOP);
         break;
       case nWhiteRook:
-        score += whiteRookPlacementScore[square];
+        mg[WHITE] += evalTables.get_mg_table(WHITE_ROOK, square);
+        eg[WHITE] += evalTables.get_eg_table(WHITE_ROOK, square);
+        gamePhase += evalTables.get_gamephaseInc(WHITE_ROOK);
         break;
       case nBlackRook:
-        score -= blackRookPlacementScore[square];
+        mg[BLACK] += evalTables.get_mg_table(BLACK_ROOK, square);
+        eg[BLACK] += evalTables.get_eg_table(BLACK_ROOK, square);
+        gamePhase += evalTables.get_gamephaseInc(BLACK_ROOK);
         break;
       case nWhiteQueen:
-        score += whiteQueenPlacementScore[square];
+        mg[WHITE] += evalTables.get_mg_table(WHITE_QUEEN, square);
+        eg[WHITE] += evalTables.get_eg_table(WHITE_QUEEN, square);
+        gamePhase += evalTables.get_gamephaseInc(WHITE_QUEEN);
         break;
       case nBlackQueen:
-        score -= blackQueenPlacementScore[square];
+        mg[BLACK] += evalTables.get_mg_table(BLACK_QUEEN, square);
+        eg[BLACK] += evalTables.get_eg_table(BLACK_QUEEN, square);
+        gamePhase += evalTables.get_gamephaseInc(BLACK_QUEEN);
         break;
       case nWhiteKing:
-        score += whiteKingPlacementScore[square];
+        mg[WHITE] += evalTables.get_mg_table(WHITE_KING, square);
+        eg[WHITE] += evalTables.get_eg_table(WHITE_KING, square);
+        gamePhase += evalTables.get_gamephaseInc(WHITE_KING);
         break;
       case nBlackKing:
-        score -= blackKingPlacementScore[square];
+        mg[BLACK] += evalTables.get_mg_table(BLACK_KING, square);
+        eg[BLACK] += evalTables.get_eg_table(BLACK_KING, square);
+        gamePhase += evalTables.get_gamephaseInc(BLACK_KING);
         break;
       default:
         throw std::invalid_argument(
@@ -76,8 +101,16 @@ int Search::evaluate() {
       }
     }
   }
-  // return score from the right perspective
-  return position->getWhiteToMove() ? score : -score;
+  
+  int side2move = position->getWhiteToMove() ? 0 : 1;
+
+  int mgScore = mg[side2move] - mg[OTHER(side2move)];
+  int egScore = eg[side2move] - eg[OTHER(side2move)];
+  int mgPhase = gamePhase;
+  if (mgPhase > 24)
+    mgPhase = 24; /* in case of early promotion */
+  int egPhase = 24 - mgPhase;
+  return (mgScore * mgPhase + egScore * egPhase) / 24;
 }
 
 int Search::search(int depth) {
@@ -142,12 +175,11 @@ int Search::quiesce(int alpha, int beta) {
 int Search::negamax(int alpha, int beta, int depth) {
 
   if (depth == 0) {
+    // keep going until no more captures in position
     return quiesce(alpha, beta);
-    return evaluate();
   }
 
   std::vector<int> moves;
-
   bool inCheck = position->getWhiteToMove() ? position->whiteInCheck
                                             : position->blackInCheck;
   moveGen->generateMoves(moves, position->getWhiteToMove(),
@@ -155,7 +187,7 @@ int Search::negamax(int alpha, int beta, int depth) {
                          position->getEnPassantSquare(), inCheck);
 
   for (int &move : moves) {
-    if(position->makeMove(move)){
+    if (position->makeMove(move)) {
       int score = -negamax(-beta, -alpha, depth - 1);
       position->undoMove();
       if (score >= beta)

@@ -28,7 +28,7 @@ public:
   std::vector<int> pseudoLegal;
   std::vector<int> pseudoLegalCapture;
 
-  // Debug functions
+  // Debug function
   void printLegalMoves();
 
 private:
