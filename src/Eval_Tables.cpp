@@ -171,10 +171,10 @@ void Eval_tables::init_tables()
     int pc, p, sq;
     for (p = PAWN, pc = WHITE_PAWN; p <= KING; pc += 2, p++) {
         for (sq = 0; sq < 64; sq++) {
-            mg_table[pc]  [sq] = mg_value[p] + mg_pesto_table[p][sq];
-            eg_table[pc]  [sq] = eg_value[p] + eg_pesto_table[p][sq];
-            mg_table[pc+1][sq] = mg_value[p] + mg_pesto_table[p][FLIP(sq)];
-            eg_table[pc+1][sq] = eg_value[p] + eg_pesto_table[p][FLIP(sq)];
+            mg_table[pc]  [sq] = mg_value[p] + mg_pesto_table[p][FLIP(sq)];
+            eg_table[pc]  [sq] = eg_value[p] + eg_pesto_table[p][FLIP(sq)];
+            mg_table[pc+1][sq] = mg_value[p] + mg_pesto_table[p][sq];
+            eg_table[pc+1][sq] = eg_value[p] + eg_pesto_table[p][sq];
         }
     }
 }

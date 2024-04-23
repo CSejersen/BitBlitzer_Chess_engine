@@ -180,6 +180,7 @@ int Search::negamax(int alpha, int beta, int depth) {
   }
 
   std::vector<int> moves;
+  int legalMoves = 0;
   bool inCheck = position->getWhiteToMove() ? position->whiteInCheck
                                             : position->blackInCheck;
   moveGen->generateMoves(moves, position->getWhiteToMove(),
@@ -188,6 +189,7 @@ int Search::negamax(int alpha, int beta, int depth) {
 
   for (int &move : moves) {
     if (position->makeMove(move)) {
+      legalMoves++;
       int score = -negamax(-beta, -alpha, depth - 1);
       position->undoMove();
       if (score >= beta)
@@ -196,6 +198,14 @@ int Search::negamax(int alpha, int beta, int depth) {
         alpha = score; // alpha acts like max in MiniMax
     }
   }
+
+  if(!legalMoves && inCheck){
+    return -16000;
+  }
+  if(!legalMoves && !inCheck){
+    return 0;
+  }
+
   return alpha;
 }
 

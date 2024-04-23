@@ -27,7 +27,6 @@
 #define BLACK_QUEEN     (2*QUEEN  + BLACK)
 #define WHITE_KING      (2*KING   + WHITE)
 #define BLACK_KING      (2*KING   + BLACK)
-#define EMPTY           (BLACK_KING  +  1)
 
 #define PCOLOR(p) ((p)&1)
 

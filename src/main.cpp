@@ -34,12 +34,6 @@ int main() {
     std::cin >> input;
     std::cout << "-----------------------" << std::endl;
 
-    if (input == "debug"){
-      std::cout << "white pawn:" << std::endl;
-      search.evalTables.print_table(0); 
-      std::cout << "black pawn:" << std::endl;
-      search.evalTables.print_table(1); 
-    }
     if (input == "play") {
       bool play = true;
       fenParser.loadStartingPosition();
@@ -86,7 +80,7 @@ int main() {
         fenParser.loadStartingPosition();
       } else {
         fenParser.loadFenPosition(
-            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
+            "rnbqkbnr/1pppppp1/p6p/8/2B1P3/5Q2/PPPP1PPP/RNB1K1NR b KQkq - 1 3");
       }
       int depth;
       std::cout << "input depth: ";
