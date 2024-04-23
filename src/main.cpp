@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
                 }
 
                 std::cout << "Thinking..." << std::endl;
-                int robotMove = search.search(6);
+                int robotMove = search.search(5);
                 position.makeMove(robotMove);
             }
         }
