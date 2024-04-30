@@ -101,7 +101,7 @@ int Search::evaluate() {
       }
     }
   }
-  
+
   int side2move = position->getWhiteToMove() ? 0 : 1;
 
   int mgScore = mg[side2move] - mg[OTHER(side2move)];
@@ -199,10 +199,10 @@ int Search::negamax(int alpha, int beta, int depth) {
     }
   }
 
-  if(!legalMoves && inCheck){
+  if (!legalMoves && inCheck) {
     return -16000;
   }
-  if(!legalMoves && !inCheck){
+  if (!legalMoves && !inCheck) {
     return 0;
   }
 

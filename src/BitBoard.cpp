@@ -1,4 +1,6 @@
 #include "BitBoard.h"
+#include "bit_manipulation.h"
+#include "board_constants.h"
 // Bitboards constructor
 BitBoard::BitBoard() = default;
 
@@ -156,7 +158,59 @@ void BitBoard::removePiece(int piece, int square) {
     }
 }
 
+U64 BitBoard::generateHash(){
+  
+  U64 bitboard;
+  U64 key = 0ULL;
 
+  for(int piece = nWhitePawn; piece <= nBlackKing; piece++){
+    if(piece == nBlack){
+      continue;
+    }
+
+    bitboard = getPieceSet(piece);
+
+    while(bitboard){
+      int sq = getLSB(bitboard);
+      clearBit(bitboard, sq);
+        key ^= pieceKeys[piece][sq];    
+    }
+  }
+  return key;
+}
+
+/* unsigned int get_random_U32_number() */
+/* { */
+/*     // get current state */
+/*     unsigned int number = random_state; */
+    
+/*     // XOR shift algorithm */
+/*     number ^= number << 13; */
+/*     number ^= number >> 17; */
+/*     number ^= number << 5; */
+    
+/*     // update random number state */
+/*     random_state = number; */
+    
+/*     // return random number */
+/*     return number; */
+/* } */
+
+/* // generate 64-bit pseudo legal numbers */
+/* U64 get_random_U64_number() */
+/* { */
+/*     // define 4 random numbers */
+/*     U64 n1, n2, n3, n4; */
+    
+/*     // init random numbers slicing 16 bits from MS1B side */
+/*     n1 = (U64)(get_random_U32_number()) & 0xFFFF; */
+/*     n2 = (U64)(get_random_U32_number()) & 0xFFFF; */
+/*     n3 = (U64)(get_random_U32_number()) & 0xFFFF; */
+/*     n4 = (U64)(get_random_U32_number()) & 0xFFFF; */
+    
+/*     // return random number */
+/*     return n1 | (n2 << 16) | (n3 << 32) | (n4 << 48); */
+/* } */
 
 
 
