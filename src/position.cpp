@@ -114,7 +114,7 @@ bool Position::makeMove(int& move) {
 
     // Checking for En Passant
     if(enPassant) {
-        handleEnPassantFlag(targetSquare);
+        handleEnPassantFlag();
     }
 
     // undo if king in check and return false
@@ -213,7 +213,7 @@ void Position::handleCaptureFlag(int targetSquare) {
     _board->removePiece(capturedPiece,targetSquare);
 }
 
-void Position::handleEnPassantFlag(uint8_t targetSquare) const {
+void Position::handleEnPassantFlag() const {
     int pawnToCapture = 0;
     // searching for Piece to capture
     if (getWhiteToMove()) {

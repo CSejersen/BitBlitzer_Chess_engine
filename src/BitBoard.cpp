@@ -63,45 +63,29 @@ void BitBoard::clearBoard(){
 
 // conversion function, example A1 --> 0 or B1 --> 1
 int BitBoard::coordinateToIndex(std::string coordinate) {
-    int file = 0;
-    int rank = 0;
-    int squareIndex = 0;
+if (coordinate.length() != 2) {
+        throw std::invalid_argument("Invalid chess coordinate.");
+    }
 
-    if(coordinate.size() != 2){
-        throw std::invalid_argument("invalid coordinate size");
+    // Get the column character and make sure it's in the range 'A' to 'H'
+    char column = std::toupper(coordinate[0]);
+    if (column < 'A' || column > 'H') {
+        throw std::invalid_argument("Invalid column letter.");
     }
-    else{
-        switch (coordinate[0]) {
-            case 'a':
-                file = 0;
-                break;
-            case 'b':
-                file = 1;
-                break;
-            case 'c':
-                file = 2;
-                break;
-            case 'd':
-                file = 3;
-                break;
-            case 'e':
-                file = 4;
-                break;
-            case 'f':
-                file = 5;
-                break;
-            case 'g':
-                file = 6;
-                break;
-            case 'h':
-                file = 7;
-                break;
-            default:
-                throw std::invalid_argument("invalid coordinate");
-        }
+
+    // Get the row character and make sure it's in the range '1' to '8'
+    char row = coordinate[1];
+    if (row < '1' || row > '8') {
+        throw std::invalid_argument("Invalid row number.");
     }
-    rank = coordinate[1] - 1;
-    squareIndex = (rank * 8) + file;
+
+    // Convert column and row to zero-based indices
+    int columnIndex = column - 'A';  // 'A' --> 0, 'B' --> 1, ..., 'H' --> 7
+    int rowIndex = row - '1';        // '1' --> 0, '2' --> 1, ..., '8' --> 7
+
+    // Calculate the square index (rowIndex * 8 + columnIndex)
+    int squareIndex = rowIndex * 8 + columnIndex;
+
     return squareIndex;
 }
 

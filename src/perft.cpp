@@ -1,4 +1,5 @@
 #include "perft.h"
+#include <iostream>
 
 
 U64 Perft::countNodes(int depth) {
