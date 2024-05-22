@@ -4,9 +4,9 @@
 #include <iostream>
 
 /*
-          binary move bits                               hexidecimal
+          move bits protocol                               hexidecimal
 
-    0000 0000 0000 0000 0011 1111    source square       0x3f
+    0000 0000 0000 0000 0011 1111    start square       0x3f
     0000 0000 0000 1111 1100 0000    target square       0xfc0
     0000 0000 1111 0000 0000 0000    piece               0xf000
     0000 1111 0000 0000 0000 0000    promoted piece      0xf0000

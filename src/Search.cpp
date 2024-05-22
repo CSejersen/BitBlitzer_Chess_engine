@@ -138,12 +138,7 @@ int Search::search(int depth) {
     }
   }
 
-  std::cout << "My move: "
-            << BitBoard::indexToCoordinate(getMoveStart(bestMove)) << "-"
-            << BitBoard::indexToCoordinate(getMoveTarget(bestMove))
-            << std::endl;
   std::cout << "Evaluation: " << bestScore << std::endl;
-
   return bestMove;
 }
 

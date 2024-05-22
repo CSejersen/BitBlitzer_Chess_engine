@@ -1,16 +1,17 @@
 #include "gameHandler.hpp"
 #include "BitBoard.h"
-#include "board_constants.h"
+#include "FenParser.h"
 #include "move.h"
 #include <cassert>
 #include <ostream>
 #include <string>
 
-GameHandler::GameHandler(Search *s, MoveGenerator *m, Position *p)
-    : search_(s), moveGenerator_(m), position_(p) {}
+GameHandler::GameHandler(Search *s, MoveGenerator *m, Position *p, FenParser *f)
+    : search_(s), moveGenerator_(m), position_(p), fenParser_(f) {}
 
 std::string GameHandler::getLegalTargetSquares(int startSquare) {
-  std::cout << "Searching for legal target squares - input: " << startSquare << std::endl;
+  std::cout << "Searching for legal target squares - input: " << startSquare
+            << std::endl;
   std::string legalTargetSquares;
   std::vector<int> moves;
   bool inCheck = position_->getWhiteToMove() ? position_->whiteInCheck
@@ -62,6 +63,7 @@ std::string GameHandler::handleInput(std::string input) {
   // m = make move
   // s = search for move
   // c = check if move is castling
+  // f = load fenstring
 
   if (command == 'c') {
     int move = stringToMove(input);
@@ -79,12 +81,25 @@ std::string GameHandler::handleInput(std::string input) {
     std::cout << "Legal targetsquares: " << legalTargets << std::endl;
     return legalTargets;
   }
-
+  
+  // returns end if game is done after move
   else if (command == 'm') {
     int move = stringToMove(input);
     std::cout << "making move: " << input << std::endl;
     position_->makeMove(move);
-    return "done";
+
+    std::vector<int> moves;
+    bool inCheck = position_->getWhiteToMove() ? position_->whiteInCheck
+                                               : position_->blackInCheck;
+
+    moveGenerator_->generateMoves(moves, position_->getWhiteToMove(),
+                                  position_->getCastlingRighs(),
+                                  position_->getEnPassantSquare(), inCheck);
+    if(moves.size() == 0){
+      return "end";
+    } else {
+      return "done";
+    }
   }
 
   else if (command == 's') {
@@ -95,6 +110,12 @@ std::string GameHandler::handleInput(std::string input) {
 
     std::cout << "Search result: " << uciNotation << std::endl;
     return uciNotation;
+  }
+
+  else if (command == 'f') {
+    fenParser_->loadFenPosition(input);
+    std::cout << "loaded position:" << std::endl;
+    return "fen loaded";
   }
 
   return "";

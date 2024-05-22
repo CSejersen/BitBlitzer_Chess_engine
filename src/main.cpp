@@ -62,6 +62,9 @@ int main() {
       while (run) {
         std::string input = socketHandler.readFromSocket();
         std::string resp = gameHandler.handleInput(input);
+        if(resp == "fen loaded"){
+          BitBoard::printBB(board.getAllPieces());
+        }
         socketHandler.writeToSocket(resp);
       }
     }

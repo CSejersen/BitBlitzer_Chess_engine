@@ -1,6 +1,8 @@
 #include "Socket_Handler.hpp"
 #include <cstddef>
 #include <vector>
+#include <cstring>
+#include <stdexcept>
 
 void SocketHandler::connectToSocket(const std::string &socketPath) {
   if (sockfd != -1) {
