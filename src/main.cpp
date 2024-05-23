@@ -5,7 +5,6 @@
 #include "Position.h"
 #include "Search.h"
 #include "Socket_Handler.hpp"
-#include "board_constants.h"
 #include "gameHandler.hpp"
 #include "perft.h"
 #include <iostream>
@@ -17,9 +16,9 @@ int main() {
   AttackTables atkTables(&board);
   Position position(&board, &atkTables);
   FenParser fenParser(&board, &position);
-  MoveGenerator moveGenerator(&board, &atkTables);
+  MoveGenerator moveGenerator(&board, &atkTables, &position);
   Search search(&board, &moveGenerator, &atkTables, &position);
-  GameHandler gameHandler(&search, &moveGenerator, &position);
+  GameHandler gameHandler(&search, &moveGenerator, &position, &fenParser);
   SocketHandler socketHandler;
 
   // for test purposes
@@ -38,12 +37,23 @@ int main() {
     std::cout << ">> ";
     std::cin >> input;
     std::cout << "-----------------------" << std::endl;
+    if (input == "s"){
+      std::string fen = "rnbqkb1r/ppp1pppp/8/3p4/3Kn3/8/PPPP1PPP/RNBQ1BNR b kq - 1 4" ;
+      fenParser.loadFenPosition(fen);
+
+      std::cout << "Entered Search mode with position: " << std::endl;
+      BitBoard::printBB(board.getAllPieces());
+      int depth;
+      std::cout << "Input depth: ";
+      std::cin >> depth;
+      search.negamaxTest(depth);
+    }
 
     if (input == "p") {
-      std::cout << "Entered Perft mode with position: " << std::endl;
-      std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 0" ;
+      std::string fen = "rnbqkb1r/ppp1pppp/8/3p4/3Kn3/8/PPPP1PPP/RNBQ1BNR b kq - 1 4" ;
       fenParser.loadFenPosition(fen);
       /* fenParser.loadStartingPosition(); */
+      std::cout << "Entered Perft mode with position: " << std::endl;
       BitBoard::printBB(board.getAllPieces());
       int depth;
       std::cout << "Input depth: ";
@@ -59,13 +69,14 @@ int main() {
 
       std::string input;
       fenParser.loadStartingPosition();
-      while (run) {
+
+      while (1) {
         std::string input = socketHandler.readFromSocket();
         std::string resp = gameHandler.handleInput(input);
+        socketHandler.writeToSocket(resp);
         if(resp == "fen loaded"){
           BitBoard::printBB(board.getAllPieces());
         }
-        socketHandler.writeToSocket(resp);
       }
     }
 

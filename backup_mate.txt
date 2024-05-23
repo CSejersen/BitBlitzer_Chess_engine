@@ -1,0 +1,17 @@
+    // check if there are legal moves left in the position
+    int nLegal = 0;
+    std::vector<int> moves;
+    moveGenerator_->generateMoves(moves);
+
+    for (int &move : moves){
+      if (position_->makeMove(move)){
+        nLegal++;
+        position_->undoMove();
+      };
+    }
+
+    if (nLegal > 0) {
+      return "done";
+    } else {
+      return "end";
+    }

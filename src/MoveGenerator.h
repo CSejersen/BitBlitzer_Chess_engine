@@ -1,6 +1,7 @@
 #pragma once
 #include "AttackTables.h"
 #include "BitBoard.h"
+#include "Position.h"
 #include "bit_manipulation.h"
 #include "board_constants.h"
 #include "magics.h"
@@ -12,12 +13,10 @@ enum Piece { Pawn = 1, Knight, Bishop, Rook, Queen, King };
 class MoveGenerator {
 
 public:
-  MoveGenerator(BitBoard *board, AttackTables *attackTables);
+  MoveGenerator(BitBoard *board, AttackTables *attackTables, Position* position);
 
   // Generate all pseudo-legal moves
-  void generateMoves(std::vector<int> &moves, bool whiteToMove,
-                     int castlingRights, const U64 &enPassantSquare,
-                     bool inCheck);
+  void generateMoves(std::vector<int> &moves);
   bool generateCaptures(std::vector<int> &captures, bool whiteToMove,
                         const U64 &enPassantSquare);
   // Generate all moves the evade the check
@@ -34,15 +33,17 @@ public:
 private:
   BitBoard *_board;
   AttackTables *_atkTables;
-
+  Position *_position;
 
   // generate pseudo-legal moves
-  void generateMovesForPieceSet(int p, U64 (AttackTables::*)(int) const, bool whiteToMove);
-  void generateCapturesForPieceSet(int p, U64 (AttackTables::*)(int) const, bool whiteToMove);
+  void generateMovesForPieceSet(int p, U64 (AttackTables::*)(int) const,
+                                bool whiteToMove);
+  void generateCapturesForPieceSet(int p, U64 (AttackTables::*)(int) const,
+                                   bool whiteToMove);
   void generatePawnCaptures(bool whiteToMove);
   void generatePawnAdvances(bool whiteToMove);
   void generatePawnAdvancesWhite();
-  void generatePawnAdvancesBlack(); 
+  void generatePawnAdvancesBlack();
   void generateCastlesWhite(int castlingRights, bool inCheck);
   void generateCastlesBlack(int castlingRights, bool inCheck);
   void generateEnPassant(bool whiteToMove, const U64 &enPassantSquare);

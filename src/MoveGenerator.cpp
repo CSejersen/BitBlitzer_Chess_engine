@@ -4,23 +4,33 @@
 
 #include "MoveGenerator.h"
 #include "AttackTables.h"
+#include "Position.h"
 #include "board_constants.h"
 
-MoveGenerator::MoveGenerator(BitBoard *board, AttackTables *attackTables) {
+MoveGenerator::MoveGenerator(BitBoard *board, AttackTables *attackTables,
+                             Position *position) {
   _board = board;
   _atkTables = attackTables;
+  _position = position;
 }
 
-void MoveGenerator::generateMoves(std::vector<int> &moves, bool whiteToMove,
-                                  int castlingRights,
-                                  const U64 &enPassantSquare, bool inCheck) {
+void MoveGenerator::generateMoves(std::vector<int> &moves) {
+  bool inCheck = _position->getWhiteToMove() ? _position->whiteInCheck
+                                             : _position->blackInCheck;
+
+  bool whiteToMove = _position->getWhiteToMove();
+  int castlingRights = _position->getCastlingRighs();
+  U64 enPassantSquare = _position->getEnPassantSquare(); 
+
   // clearing move lists
   pseudoLegal.clear();
   pseudoLegalCapture.clear();
 
   // generate all pseudo-legal moves (quiet + captures)
-  generateMovesForPieceSet(Knight, &AttackTables::getKnightAttacks, whiteToMove);
-  generateMovesForPieceSet(Bishop, &AttackTables::getBishopAttacks, whiteToMove);
+  generateMovesForPieceSet(Knight, &AttackTables::getKnightAttacks,
+                           whiteToMove);
+  generateMovesForPieceSet(Bishop, &AttackTables::getBishopAttacks,
+                           whiteToMove);
   generateMovesForPieceSet(Rook, &AttackTables::getRookAttacks, whiteToMove);
   generateMovesForPieceSet(Queen, &AttackTables::getQueenAttacks, whiteToMove);
   generateMovesForPieceSet(King, &AttackTables::getKingAttacks, whiteToMove);
@@ -31,8 +41,10 @@ void MoveGenerator::generateMoves(std::vector<int> &moves, bool whiteToMove,
               : generateCastlesBlack(castlingRights, inCheck);
 
   // inserting all moves into "moves-vector" passed by reference
-  moves.reserve(pseudoLegal.size() + pseudoLegalCapture.size()); // preallocate memory
-  moves.insert(moves.end(), pseudoLegalCapture.begin(), pseudoLegalCapture.end());
+  moves.reserve(pseudoLegal.size() +
+                pseudoLegalCapture.size()); // preallocate memory
+  moves.insert(moves.end(), pseudoLegalCapture.begin(),
+               pseudoLegalCapture.end());
   moves.insert(moves.end(), pseudoLegal.begin(), pseudoLegal.end());
 }
 
@@ -46,10 +58,13 @@ bool MoveGenerator::generateCaptures(std::vector<int> &captures,
   pseudoLegalCapture.clear();
 
   generatePawnCaptures(whiteToMove);
-  generateCapturesForPieceSet(Knight, &AttackTables::getKnightAttacks, whiteToMove);
-  generateCapturesForPieceSet(Bishop, &AttackTables::getBishopAttacks, whiteToMove);
+  generateCapturesForPieceSet(Knight, &AttackTables::getKnightAttacks,
+                              whiteToMove);
+  generateCapturesForPieceSet(Bishop, &AttackTables::getBishopAttacks,
+                              whiteToMove);
   generateCapturesForPieceSet(Rook, &AttackTables::getRookAttacks, whiteToMove);
-  generateCapturesForPieceSet(Queen, &AttackTables::getQueenAttacks, whiteToMove);
+  generateCapturesForPieceSet(Queen, &AttackTables::getQueenAttacks,
+                              whiteToMove);
   generateCapturesForPieceSet(King, &AttackTables::getKingAttacks, whiteToMove);
   generateEnPassant(whiteToMove, enPassantSquare);
 

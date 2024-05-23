@@ -14,20 +14,21 @@ std::string GameHandler::getLegalTargetSquares(int startSquare) {
             << std::endl;
   std::string legalTargetSquares;
   std::vector<int> moves;
-  bool inCheck = position_->getWhiteToMove() ? position_->whiteInCheck
-                                             : position_->blackInCheck;
-  moveGenerator_->generateMoves(moves, position_->getWhiteToMove(),
-                                position_->getCastlingRighs(),
-                                position_->getEnPassantSquare(), inCheck);
+  moveGenerator_->generateMoves(moves);
+  int nlegal = 0;
 
   for (int move : moves) {
     if (getMoveStart(move) == startSquare) {
-      printMove(move);
+      nlegal++;
       legalTargetSquares.append(
           BitBoard::indexToCoordinate(getMoveTarget(move)));
     }
   }
-  return legalTargetSquares;
+  if (nlegal) {
+    return legalTargetSquares;
+  } else {
+    return "none";
+  }
 }
 
 int GameHandler::stringToMove(std::string input) {
@@ -37,11 +38,7 @@ int GameHandler::stringToMove(std::string input) {
   int inputTargetSquare = BitBoard::coordinateToIndex(input.substr(2, 2));
 
   std::vector<int> moves;
-  bool inCheck = position_->getWhiteToMove() ? position_->whiteInCheck
-                                             : position_->blackInCheck;
-  moveGenerator_->generateMoves(moves, position_->getWhiteToMove(),
-                                position_->getCastlingRighs(),
-                                position_->getEnPassantSquare(), inCheck);
+  moveGenerator_->generateMoves(moves);
 
   for (int move : moves) {
     if (getMoveStart(move) == inputStartSquare &&
@@ -81,24 +78,29 @@ std::string GameHandler::handleInput(std::string input) {
     std::cout << "Legal targetsquares: " << legalTargets << std::endl;
     return legalTargets;
   }
-  
+
   // returns end if game is done after move
   else if (command == 'm') {
     int move = stringToMove(input);
     std::cout << "making move: " << input << std::endl;
     position_->makeMove(move);
 
+    // check if there are legal moves left in the position
+    int nLegal = 0;
     std::vector<int> moves;
-    bool inCheck = position_->getWhiteToMove() ? position_->whiteInCheck
-                                               : position_->blackInCheck;
+    moveGenerator_->generateMoves(moves);
 
-    moveGenerator_->generateMoves(moves, position_->getWhiteToMove(),
-                                  position_->getCastlingRighs(),
-                                  position_->getEnPassantSquare(), inCheck);
-    if(moves.size() == 0){
-      return "end";
-    } else {
+    for (int &move : moves){
+      if (position_->makeMove(move)){
+        nLegal++;
+        position_->undoMove();
+      };
+    }
+
+    if (nLegal > 0) {
       return "done";
+    } else {
+      return "end";
     }
   }
 

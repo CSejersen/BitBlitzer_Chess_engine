@@ -119,9 +119,7 @@ int Search::search(int depth) {
   bool inCheck = position->getWhiteToMove() ? position->whiteInCheck
                                             : position->blackInCheck;
   // generate all starting moves
-  moveGen->generateMoves(moves, position->getWhiteToMove(),
-                         position->getCastlingRighs(),
-                         position->getEnPassantSquare(), inCheck);
+  moveGen->generateMoves(moves);
 
   int bestScore = -INF;
   int bestMove;
@@ -176,11 +174,7 @@ int Search::negamax(int alpha, int beta, int depth) {
 
   std::vector<int> moves;
   int legalMoves = 0;
-  bool inCheck = position->getWhiteToMove() ? position->whiteInCheck
-                                            : position->blackInCheck;
-  moveGen->generateMoves(moves, position->getWhiteToMove(),
-                         position->getCastlingRighs(),
-                         position->getEnPassantSquare(), inCheck);
+  moveGen->generateMoves(moves);
 
   for (int &move : moves) {
     if (position->makeMove(move)) {
@@ -194,6 +188,8 @@ int Search::negamax(int alpha, int beta, int depth) {
     }
   }
 
+  bool inCheck = position->getWhiteToMove() ? position->whiteInCheck
+                                            : position->blackInCheck;
   if (!legalMoves && inCheck) {
     return -16000;
   }
@@ -207,12 +203,8 @@ int Search::negamax(int alpha, int beta, int depth) {
 // test functions
 void Search::negamaxTest(int depth) {
   std::vector<int> moves;
-  bool inCheck = position->getWhiteToMove() ? position->whiteInCheck
-                                            : position->blackInCheck;
   // generate all starting moves
-  moveGen->generateMoves(moves, position->getWhiteToMove(),
-                         position->getCastlingRighs(),
-                         position->getEnPassantSquare(), inCheck);
+  moveGen->generateMoves(moves);
 
   // evaluate all moves and save the best one
   for (int &move : moves) {

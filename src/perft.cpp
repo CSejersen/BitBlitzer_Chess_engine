@@ -10,9 +10,7 @@ U64 Perft::countNodes(int depth) {
 
     U64 nodes = 0;
     std::vector<int> moves;
-    bool inCheck = position->getWhiteToMove() ? position->whiteInCheck : position->blackInCheck;
-    moveGenerator->generateMoves(moves, position->getWhiteToMove(), position->getCastlingRighs(),
-                                 position->getEnPassantSquare(), inCheck);
+    moveGenerator->generateMoves(moves);
 
     for(int move : moves){
         if(position->makeMove(move)){
@@ -25,8 +23,7 @@ U64 Perft::countNodes(int depth) {
 
 void Perft::perft(int depth){
     std::vector<int> moves;
-    bool inCheck = position->getWhiteToMove() ? position->whiteInCheck : position->blackInCheck;
-    moveGenerator->generateMoves(moves, position->getWhiteToMove(), position->getCastlingRighs(),position->getEnPassantSquare(),inCheck);
+    moveGenerator->generateMoves(moves);
     U64 nodes = 0;
     U64 totalNodes = 0;
 
